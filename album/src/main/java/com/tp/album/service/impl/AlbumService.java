@@ -4,6 +4,7 @@ import com.tp.album.entities.Album;
 import com.tp.album.entities.Rareza;
 import com.tp.album.entities.Figurita;
 import com.tp.album.dto.CargarFiguritaDTO;
+import com.tp.album.dto.CrearAlbumDTO;
 import com.tp.album.repository.AlbumRepository;
 import com.tp.album.repository.FiguritaRepository;
 import com.tp.album.service.DistributionStrategy;
@@ -33,9 +34,22 @@ public class AlbumService {
         this.imagenService = imagenService;
     }
 
-    public Album crearAlbum(Album album) {
+    public Album crearAlbum(CrearAlbumDTO dto) {
+        Album album = new Album();
+        album.setTitulo(dto.getTitulo());
+        album.setDescripcion(dto.getDescripcion());
+        album.setCategoria(dto.getCategoria());
         album.setPublicado(false);
         return albumRepository.save(album);
+    }
+
+    public List<Album> obetenerAlbumes() {
+        return albumRepository.findAll();
+    }
+
+
+    public List<Figurita> obetenerFiguritas(Long albumId) {
+        return albumRepository.findById(albumId).get().getFiguritas();
     }
 
     @Transactional
