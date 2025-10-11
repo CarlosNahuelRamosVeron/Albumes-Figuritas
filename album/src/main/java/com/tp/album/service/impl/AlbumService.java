@@ -11,9 +11,7 @@ import com.tp.album.service.DistributionStrategy;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -22,16 +20,13 @@ public class AlbumService {
     private final AlbumRepository albumRepository;
     private final FiguritaRepository figuritaRepository;
     private final FiguritaService figuritaService;
-    private final ImagenService imagenService;
 
     public AlbumService(AlbumRepository albumRepository,
                         FiguritaRepository figuritaRepository,
-                        FiguritaService figuritaService,
-                        ImagenService imagenService) {
+                        FiguritaService figuritaService) {
         this.albumRepository = albumRepository;
         this.figuritaRepository = figuritaRepository;
         this.figuritaService = figuritaService;
-        this.imagenService = imagenService;
     }
 
     public Album crearAlbum(CrearAlbumDTO dto) {
@@ -54,25 +49,14 @@ public class AlbumService {
 
     @Transactional
     public List<Figurita> cargarFiguritas(Long albumId,
-                                        List<CargarFiguritaDTO> metadata,
-                                        List<MultipartFile> imagenes,
-                                        DistributionStrategy strategy) throws Exception {
+                                        List<CargarFiguritaDTO> cargarFiguritaDTOs,
+                                        DistributionStrategy strategy) {
 
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
 
-        if (imagenes.size() != metadata.size()) {
-            throw new IllegalArgumentException("Metadata e imágenes deben coincidir");
-        }            
-
-        // Guardar imagenes y actualizar la url
-        for (int i = 0; i < imagenes.size(); i++) {
-            String url = imagenService.guardarYValidarImagenDeAlbum(albumId, imagenes.get(i), Paths.get("cargas"));
-            metadata.get(i).setUrl(url);
-        }
-
         // Crear figuritas
-        List<Figurita> figuritas = figuritaService.crearFiguritas(album, metadata, strategy, 100);
+        List<Figurita> figuritas = figuritaService.crearFiguritas(album, cargarFiguritaDTOs, strategy, 10);
 
         // Guardar figuritas 
         for (Figurita figurita : figuritas) {

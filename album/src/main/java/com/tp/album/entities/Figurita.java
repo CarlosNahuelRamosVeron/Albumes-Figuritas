@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import lombok.Data;
 
 @Data
@@ -26,9 +25,6 @@ public class Figurita {
     private Rareza rareza;
     private Integer stockTotal = 0;
     private Integer stockDisponible = 0;
-    private String url;
-    @Version
-    private Long version;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
     private Album album;

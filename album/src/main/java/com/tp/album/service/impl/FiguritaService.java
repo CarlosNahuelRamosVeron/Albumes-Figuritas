@@ -18,14 +18,12 @@ public class FiguritaService {
                                     DistributionStrategy strategy,
                                     int defaultStock) {
         List<Figurita> figuritas = new ArrayList<>();
-        //int num = 1;
         for (CargarFiguritaDTO dto : cargarFiguritaDTOs) {
-            Figurita s = new Figurita();
-            s.setNombre(dto.getNombre());
-            s.setNumero(dto.getNumero());
-            s.setAlbum(album);
-            s.setUrl(dto.getUrl()); // imageUrl set by ImageService
-            figuritas.add(s);
+            Figurita figurita = new Figurita();
+            figurita.setNombre(dto.getNombre());
+            figurita.setNumero(dto.getNumero());
+            figurita.setAlbum(album);
+            figuritas.add(figurita);
         }
         strategy.asignarRarezaYStock(figuritas, defaultStock);
         return figuritas;
