@@ -29,12 +29,12 @@ public class FiguritaController {
         this.strategy = strategy;
     }
 
-    @GetMapping("/obtener-figuritas/{album-id}")
+    @GetMapping("/obtener-figuritas/{albumId}")
     public ResponseEntity<List<Figurita>> obetenerFiguritas(@PathVariable Long albumId) {
         return ResponseEntity.ok(albumService.obetenerFiguritas(albumId));
     }
 
-    @PostMapping("/{album-id}/figuritas")
+    @PostMapping("/{albumId}/figuritas")
     public ResponseEntity<List<Figurita>> cargarFiguritas(@PathVariable Long albumId,
                                                     @RequestBody List<CargarFiguritaDTO> cargarFiguritaDTOs) {
         List<Figurita> figuritas = albumService.cargarFiguritas(albumId, cargarFiguritaDTOs, strategy);

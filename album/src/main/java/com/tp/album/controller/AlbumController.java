@@ -36,9 +36,14 @@ public class AlbumController {
         return ResponseEntity.ok(albumGuardado);
     }
 
-    @GetMapping
+    @GetMapping("/todos")
     public ResponseEntity<List<Album>> obetenerAlbumes() {
         return ResponseEntity.ok(albumService.obetenerAlbumes());
+    }
+
+    @GetMapping("/{albumId}")
+    public ResponseEntity<Album> obetenerAlbumPorId(@PathVariable Long albumId) {
+        return ResponseEntity.ok(albumService.obetenerAlbumPorId(albumId));
     }
 
 }

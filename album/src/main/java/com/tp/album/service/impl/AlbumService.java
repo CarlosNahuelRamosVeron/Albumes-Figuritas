@@ -42,6 +42,9 @@ public class AlbumService {
         return albumRepository.findAll();
     }
 
+    public Album obetenerAlbumPorId(Long albumId) {
+        return albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
+    }
 
     public List<Figurita> obetenerFiguritas(Long albumId) {
         return albumRepository.findById(albumId).get().getFiguritas();
@@ -51,22 +54,13 @@ public class AlbumService {
     public List<Figurita> cargarFiguritas(Long albumId,
                                         List<CargarFiguritaDTO> cargarFiguritaDTOs,
                                         DistributionStrategy strategy) {
-
-        Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
-
-        // Crear figuritas
+        Album album = obetenerAlbumPorId(albumId);
         List<Figurita> figuritas = figuritaService.crearFiguritas(album, cargarFiguritaDTOs, strategy, 10);
-
-        // Guardar figuritas 
         for (Figurita figurita : figuritas) {
             figuritaRepository.save(figurita);
             album.addFigurita(figurita);
         }
-
-        // Guardar album
         albumRepository.save(album);
-
         return figuritas;
     }
 
@@ -75,9 +69,9 @@ public class AlbumService {
         Album album = albumRepository.findById(albumId).orElseThrow();
         // calcular dificultad por rareza promedio
         double score = album.getFiguritas().stream()
-            .mapToDouble(s -> 
-                s.getRareza() == Rareza.COMUN ? 1 
-                    : s.getRareza() == Rareza.RARA ? 2 
+            .mapToDouble(f -> 
+                f.getRareza() == Rareza.COMUN ? 1 
+                    : f.getRareza() == Rareza.RARA ? 2 
                         : 3
             )
             .average().orElse(1.0);
@@ -91,4 +85,5 @@ public class AlbumService {
         album.setPublicado(true);
         return albumRepository.save(album);
     }
+
 }
