@@ -1,7 +1,7 @@
 package com.tp.album.service.impl;
 
-import com.tp.album.entities.Rarity;
-import com.tp.album.entities.Sticker;
+import com.tp.album.entities.Rareza;
+import com.tp.album.entities.Figurita;
 import com.tp.album.service.DistributionStrategy;
 
 import org.springframework.stereotype.Component;
@@ -14,16 +14,16 @@ import java.util.Random;
 @Service
 public class UniformeImpl implements DistributionStrategy {
     private final Random random = new Random();
-    private final Rarity[] niveles = Rarity.values();
+    private final Rareza[] niveles = Rareza.values();
 
     @Override
-    public void asignarRarityAndStock(List<Sticker> stickers, int defaultStockPerSticker) {
-        for (Sticker s : stickers) {
-            Rarity r = niveles[random.nextInt(niveles.length)];
-            s.setRarity(r);
-            int multiplier = (r == Rarity.COMUN) ? 1 : (r == Rarity.RARA) ? 1 : 1;
-            s.setStockTotal(defaultStockPerSticker / multiplier);
-            s.setStockDisponible(s.getStockTotal());
+    public void asignarRarezaYStock(List<Figurita> figuritas, int defaultStockPorFigurita) {
+        for (Figurita figurita : figuritas) {
+            Rareza r = niveles[random.nextInt(niveles.length)];
+            figurita.setRareza(r);
+            int multiplicador = (r == Rareza.COMUN) ? 1 : (r == Rareza.RARA) ? 1 : 1;
+            figurita.setStockTotal(defaultStockPorFigurita / multiplicador);
+            figurita.setStockDisponible(figurita.getStockTotal());
         }
     }
 }

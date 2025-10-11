@@ -23,8 +23,9 @@ public class Album {
     private String titulo;
     private String descripcion;
     private String categoria;
+    private String creador; //admin
     private String dificultad; //facil, medio, dificil - calculada al publicar
-    private Integer totalStickers = 0;
+    private Integer totalFiguritas = 0;
     private boolean publicado;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
     @OneToMany(
@@ -32,11 +33,11 @@ public class Album {
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
-    private List<Sticker> stickers = new ArrayList<>();
+    private List<Figurita> figuritas = new ArrayList<>();
     
-    public void addSticker(Sticker sticker) {
-        stickers.add(sticker);
-        sticker.setAlbum(this);
-        this.totalStickers = stickers.size();
+    public void addFigurita(Figurita figurita) {
+        figuritas.add(figurita);
+        figurita.setAlbum(this);
+        this.totalFiguritas = figuritas.size();
     }
 }

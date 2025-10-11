@@ -2,8 +2,8 @@ package com.tp.album.service;
 
 import java.util.List;
 
-import com.tp.album.entities.Sticker;
+import com.tp.album.entities.Figurita;
 
 public interface DistributionStrategy {
-    void asignarRarityAndStock(List<Sticker> stickers, int defaultStockPerSticker);
+    void asignarRarezaYStock(List<Figurita> figuritas, int defaultStockPorFigurita);
 }

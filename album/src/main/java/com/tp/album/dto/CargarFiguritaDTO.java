@@ -3,7 +3,7 @@ package com.tp.album.dto;
 import lombok.Data;
 
 @Data
-public class UploadStickerDTO {
+public class CargarFiguritaDTO {
     private String nombre;
     private int numero;
     private String url;

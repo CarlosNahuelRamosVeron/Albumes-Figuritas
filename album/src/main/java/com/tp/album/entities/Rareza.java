@@ -1,6 +1,6 @@
 package com.tp.album.entities;
 
-public enum Rarity {
+public enum Rareza {
     COMUN,
     RARA,
     EPICA;

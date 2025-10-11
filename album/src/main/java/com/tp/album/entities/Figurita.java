@@ -15,15 +15,15 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "sticker")
-public class Sticker {
+@Table(name = "figurita")
+public class Figurita {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     private int numero;
     @Enumerated(EnumType.STRING)
-    private Rarity rarity;
+    private Rareza rareza;
     private Integer stockTotal = 0;
     private Integer stockDisponible = 0;
     private String url;
