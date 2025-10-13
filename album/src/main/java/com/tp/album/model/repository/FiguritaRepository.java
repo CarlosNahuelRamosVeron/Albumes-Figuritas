@@ -1,10 +1,10 @@
-package com.tp.album.repository;
+package com.tp.album.model.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import com.tp.album.entities.Figurita;
+import com.tp.album.model.entities.Figurita;
 
 public interface FiguritaRepository extends JpaRepository<Figurita, Long> {
 

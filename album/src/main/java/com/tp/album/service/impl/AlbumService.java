@@ -1,12 +1,12 @@
 package com.tp.album.service.impl;
 
-import com.tp.album.entities.Album;
-import com.tp.album.entities.Rareza;
-import com.tp.album.entities.Figurita;
-import com.tp.album.dto.CargarFiguritaDTO;
-import com.tp.album.dto.CrearAlbumDTO;
-import com.tp.album.repository.AlbumRepository;
-import com.tp.album.repository.FiguritaRepository;
+import com.tp.album.model.entities.Album;
+import com.tp.album.model.entities.Rareza;
+import com.tp.album.model.entities.Figurita;
+import com.tp.album.model.dto.CargarFiguritaDTO;
+import com.tp.album.model.dto.CrearAlbumDTO;
+import com.tp.album.model.repository.AlbumRepository;
+import com.tp.album.model.repository.FiguritaRepository;
 import com.tp.album.service.DistributionStrategy;
 
 import org.springframework.stereotype.Service;

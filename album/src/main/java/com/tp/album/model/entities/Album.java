@@ -1,4 +1,4 @@
-package com.tp.album.entities;
+package com.tp.album.model.entities;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

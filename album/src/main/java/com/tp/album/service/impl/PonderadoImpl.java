@@ -3,8 +3,8 @@ package com.tp.album.service.impl;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.tp.album.entities.Rareza;
-import com.tp.album.entities.Figurita;
+import com.tp.album.model.entities.Rareza;
+import com.tp.album.model.entities.Figurita;
 import com.tp.album.service.DistributionStrategy;
 
 import java.util.List;

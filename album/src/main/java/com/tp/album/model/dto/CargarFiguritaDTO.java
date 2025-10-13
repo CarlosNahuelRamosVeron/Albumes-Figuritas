@@ -1,4 +1,4 @@
-package com.tp.album.dto;
+package com.tp.album.model.dto;
 
 import lombok.Data;
 

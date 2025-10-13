@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tp.album.dto.CargarFiguritaDTO;
-import com.tp.album.entities.Figurita;
+import com.tp.album.model.dto.CargarFiguritaDTO;
+import com.tp.album.model.entities.Figurita;
 import com.tp.album.service.DistributionStrategy;
 import com.tp.album.service.impl.AlbumService;
 

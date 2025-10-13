@@ -1,7 +1,7 @@
 package com.tp.album.controller;
 
-import com.tp.album.dto.CrearAlbumDTO;
-import com.tp.album.entities.Album;
+import com.tp.album.model.dto.CrearAlbumDTO;
+import com.tp.album.model.entities.Album;
 import com.tp.album.service.impl.AlbumService;
 
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.tp.album.service.impl;
 
-import com.tp.album.entities.Rareza;
-import com.tp.album.entities.Figurita;
+import com.tp.album.model.entities.Rareza;
+import com.tp.album.model.entities.Figurita;
 import com.tp.album.service.DistributionStrategy;
 
 import org.springframework.stereotype.Component;
