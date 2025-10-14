@@ -63,7 +63,7 @@ public class AlbumService {
     }
 
     @Transactional
-    public void cargarFiguritas(Long albumId,
+    public List<Figurita> cargarFiguritas(Long albumId,
                                 List<CargarFiguritaDTO> figuritasDTO,
                                 String modo) {
 
@@ -72,15 +72,15 @@ public class AlbumService {
 
         DistributionStrategy strategy;
 
-        // 🔹 Si el admin pide automático, el sistema decide
+            //Si el admin pide automático, el sistema decide
         if (modo.equalsIgnoreCase("automatico")) {
             strategy = elegirEstrategiaSegunAlbum(album);
         } else {
-            // 🔹 Si elige explícitamente, se usa la que corresponda
+            //Si elige explícitamente, se usa la que corresponda
             strategy = estrategias.getOrDefault(modo, estrategias.get("uniforme"));
         }
 
-        figuritaService.crearFiguritas(album, figuritasDTO, strategy, 10);
+        return figuritaService.crearFiguritas(album, figuritasDTO, strategy, 10);
     }
 
     private DistributionStrategy elegirEstrategiaSegunAlbum(Album album) {
