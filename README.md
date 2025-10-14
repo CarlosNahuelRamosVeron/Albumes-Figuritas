@@ -61,3 +61,6 @@ La API estará disponible en:
 ```bash
 http://localhost:8080
 ```
+```bash
+http://localhost:8080/swagger-ui/index.html
+```
