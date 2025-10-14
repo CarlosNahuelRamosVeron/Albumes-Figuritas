@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "albums")
+@Table(name = "album")
 public class Album {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class Album {
     private String titulo;
     private String descripcion;
     private String categoria;
-    private String creador; //admin
+    private String creador; //admin --> a cambiar por usuario
     private String dificultad; //facil, medio, dificil - calculada al publicar
     private Integer totalFiguritas = 10; //minimo 10
     private boolean publicado;
