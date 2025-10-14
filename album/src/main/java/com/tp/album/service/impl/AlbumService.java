@@ -12,7 +12,9 @@ import com.tp.album.service.DistributionStrategy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AlbumService {
@@ -20,13 +22,16 @@ public class AlbumService {
     private final AlbumRepository albumRepository;
     private final FiguritaRepository figuritaRepository;
     private final FiguritaService figuritaService;
+    private final Map<String, DistributionStrategy> estrategias;
 
     public AlbumService(AlbumRepository albumRepository,
                         FiguritaRepository figuritaRepository,
-                        FiguritaService figuritaService) {
+                        FiguritaService figuritaService,
+                        Map<String, DistributionStrategy> estrategias) {
         this.albumRepository = albumRepository;
         this.figuritaRepository = figuritaRepository;
         this.figuritaService = figuritaService;
+        this.estrategias = estrategias;
     }
 
     public Album crearAlbum(CrearAlbumDTO dto) {
@@ -38,7 +43,7 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public List<Album> obtenerAlbums() {
+    public List<Album> obtenerAlbumes() {
         return albumRepository.findAll();
     }
 
@@ -58,29 +63,45 @@ public class AlbumService {
     }
 
     @Transactional
-    public List<Figurita> cargarFiguritas(Long albumId,
-                                        List<CargarFiguritaDTO> cargarFiguritaDTOs,
-                                        DistributionStrategy strategy) {
-        Album album = obtenerAlbumPorId(albumId);
-        List<Figurita> figuritas = figuritaService.crearFiguritas(album, cargarFiguritaDTOs, strategy, 10);
-        for (Figurita figurita : figuritas) {
-            figuritaRepository.save(figurita);
-            album.addFigurita(figurita);
+    public void cargarFiguritas(Long albumId,
+                                List<CargarFiguritaDTO> figuritasDTO,
+                                String modo) {
+
+        Album album = albumRepository.findById(albumId)
+                .orElseThrow(() -> new IllegalArgumentException("Álbum no encontrado"));
+
+        DistributionStrategy strategy;
+
+        // 🔹 Si el admin pide automático, el sistema decide
+        if (modo.equalsIgnoreCase("automatico")) {
+            strategy = elegirEstrategiaSegunAlbum(album);
+        } else {
+            // 🔹 Si elige explícitamente, se usa la que corresponda
+            strategy = estrategias.getOrDefault(modo, estrategias.get("uniforme"));
         }
-        albumRepository.save(album);
-        return figuritas;
+
+        figuritaService.crearFiguritas(album, figuritasDTO, strategy, 10);
     }
-    /*
-    @Transactional
-    public List<Figurita> cargarFiguritas(Long albumId,
-                                          List<CargarFiguritaDTO> dtos,
-                                          DistributionStrategy strategy) {
-        Album album = obetenerAlbumPorId(albumId);
-        List<Figurita> figuritas = figuritaService.guardarFiguritasEnAlbum(album, dtos, strategy, 10);
-        albumRepository.save(album);
-        return figuritas;
+
+    private DistributionStrategy elegirEstrategiaSegunAlbum(Album album) {
+        int cantidad = album.getFiguritas().size();
+        if (cantidad < 10) {
+            return estrategias.get("uniforme");
+        } else {
+            return estrategias.get("ponderado");
+        }
     }
-     */
+
+    public List<CargarFiguritaDTO> generarFiguritasDTO(int cantidad) {
+        List<CargarFiguritaDTO> lista = new ArrayList<>();
+        for (int i = 1; i <= cantidad; i++) {
+            CargarFiguritaDTO dto = new CargarFiguritaDTO();
+            dto.setNombre("Figurita " + i);
+            dto.setNumero(i);
+            lista.add(dto);
+        }
+        return lista;
+    }
 
     @Transactional
     public Album publicarAlbum(Long albumId) {

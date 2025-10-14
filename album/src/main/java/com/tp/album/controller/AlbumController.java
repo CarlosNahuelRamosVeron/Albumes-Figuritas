@@ -1,5 +1,6 @@
 package com.tp.album.controller;
 
+import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.service.impl.AlbumService;
@@ -26,7 +27,7 @@ public class AlbumController {
     //get all
     @GetMapping
     public ResponseEntity<List<Album>> obtenerAlbumes() {
-        return ResponseEntity.ok(albumService.obtenerAlbums());
+        return ResponseEntity.ok(albumService.obtenerAlbumes());
     }
 
     //get by id
@@ -77,5 +78,15 @@ public class AlbumController {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
+    }
+
+    @PostMapping("/{id}/cargar-figuritas")
+    public ResponseEntity<?> cargarFiguritas(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "automatico") String modo,
+            @RequestBody List<CargarFiguritaDTO> figuritasDTO
+    ) {
+        albumService.cargarFiguritas(id, figuritasDTO, modo);
+        return ResponseEntity.ok("Figuritas cargadas con modo " + modo);
     }
 }
