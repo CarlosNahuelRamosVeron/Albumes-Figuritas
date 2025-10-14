@@ -25,6 +25,7 @@ También incluye:
 🧰 Lombok
 ⚙️ Maven
 🧪 Spring Boot Test + REST Docs para pruebas y documentación
+
 📦 Para ejecutar los tests:
 ```bash
 mvn test
