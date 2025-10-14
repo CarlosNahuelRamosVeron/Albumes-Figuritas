@@ -15,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "album")
+@Table(name = "albums")
 public class Album {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +25,7 @@ public class Album {
     private String categoria;
     private String creador; //admin
     private String dificultad; //facil, medio, dificil - calculada al publicar
-    private Integer totalFiguritas = 0;
+    private Integer totalFiguritas = 10; //minimo 10
     private boolean publicado;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
     @OneToMany(

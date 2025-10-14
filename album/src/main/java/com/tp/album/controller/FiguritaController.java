@@ -31,7 +31,7 @@ public class FiguritaController {
 
     @GetMapping("/obtener-figuritas/{albumId}")
     public ResponseEntity<List<Figurita>> obetenerFiguritas(@PathVariable Long albumId) {
-        return ResponseEntity.ok(albumService.obetenerFiguritas(albumId));
+        return ResponseEntity.ok(albumService.obtenerFiguritas(albumId));
     }
 
     @PostMapping("/{albumId}/figuritas")

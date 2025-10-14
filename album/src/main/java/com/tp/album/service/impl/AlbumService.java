@@ -38,15 +38,22 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public List<Album> obetenerAlbumes() {
+    public List<Album> obtenerAlbums() {
         return albumRepository.findAll();
     }
 
-    public Album obetenerAlbumPorId(Long albumId) {
+    public Album obtenerAlbumPorId(Long albumId) {
         return albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
     }
 
-    public List<Figurita> obetenerFiguritas(Long albumId) {
+    @Transactional
+    public void eliminarAlbum(Long id) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
+        albumRepository.delete(album);
+    }
+
+    public List<Figurita> obtenerFiguritas(Long albumId) {
         return albumRepository.findById(albumId).get().getFiguritas();
     }
 
@@ -54,7 +61,7 @@ public class AlbumService {
     public List<Figurita> cargarFiguritas(Long albumId,
                                         List<CargarFiguritaDTO> cargarFiguritaDTOs,
                                         DistributionStrategy strategy) {
-        Album album = obetenerAlbumPorId(albumId);
+        Album album = obtenerAlbumPorId(albumId);
         List<Figurita> figuritas = figuritaService.crearFiguritas(album, cargarFiguritaDTOs, strategy, 10);
         for (Figurita figurita : figuritas) {
             figuritaRepository.save(figurita);
@@ -86,4 +93,13 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
+    @Transactional
+    public Album actualizarAlbum(Long id, CrearAlbumDTO dto) {
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
+        album.setTitulo(dto.getTitulo());
+        album.setDescripcion(dto.getDescripcion());
+        album.setCategoria(dto.getCategoria());
+        return albumRepository.save(album);
+    }
 }

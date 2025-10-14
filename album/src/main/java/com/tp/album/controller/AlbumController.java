@@ -4,18 +4,17 @@ import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.service.impl.AlbumService;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/album")
+@RequestMapping("/albums")
 public class AlbumController {
 
     private final AlbumService albumService;
@@ -24,10 +23,21 @@ public class AlbumController {
         this.albumService = albumService;
     }
 
-    @PostMapping
-    public ResponseEntity<Album> crearAlbum(@RequestBody CrearAlbumDTO dto) {
-        Album albumGuardado = albumService.crearAlbum(dto);
-        return ResponseEntity.ok(albumGuardado);
+    //get all
+    @GetMapping
+    public ResponseEntity<List<Album>> obtenerAlbumes() {
+        return ResponseEntity.ok(albumService.obtenerAlbums());
+    }
+
+    //get by id
+    @GetMapping("/{albumId}")
+    public ResponseEntity<Album> obetenerAlbumPorId(@PathVariable Long albumId) {
+        try {
+            Album album = albumService.obtenerAlbumPorId(albumId);
+            return ResponseEntity.ok(album);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
     @PostMapping("/{id}/publicar")
@@ -36,14 +46,36 @@ public class AlbumController {
         return ResponseEntity.ok(albumGuardado);
     }
 
-    @GetMapping("/todos")
-    public ResponseEntity<List<Album>> obetenerAlbumes() {
-        return ResponseEntity.ok(albumService.obetenerAlbumes());
+    //create
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Album> crearAlbum(@Valid @RequestBody CrearAlbumDTO dto) {
+        Album albumGuardado = albumService.crearAlbum(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(albumGuardado);
     }
 
-    @GetMapping("/{albumId}")
-    public ResponseEntity<Album> obetenerAlbumPorId(@PathVariable Long albumId) {
-        return ResponseEntity.ok(albumService.obetenerAlbumPorId(albumId));
+    //delete
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> eliminarAlbum(@PathVariable Long id) {
+        try {
+            albumService.eliminarAlbum(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
     }
 
+    //update
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Album> actualizarAlbum(@PathVariable Long id,
+                                                 @Valid @RequestBody CrearAlbumDTO dto) {
+        try {
+            Album albumActualizado = albumService.actualizarAlbum(id, dto);
+            return ResponseEntity.ok(albumActualizado);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
 }
