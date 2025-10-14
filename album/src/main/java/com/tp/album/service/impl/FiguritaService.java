@@ -28,5 +28,19 @@ public class FiguritaService {
         strategy.asignarRarezaYStock(figuritas, defaultStock);
         return figuritas;
     }
-    
+
+    /*
+    @Transactional
+    public List<Figurita> guardarFiguritasEnAlbum(
+            Album album,
+            List<CargarFiguritaDTO> dtos,
+            DistributionStrategy strategy,
+            int defaultStock
+    ) {
+        List<Figurita> figuritas = crearFiguritas(album, dtos, strategy, defaultStock);
+        figuritaRepository.saveAll(figuritas);
+        figuritas.forEach(album::addFigurita);
+        return figuritas;
+    }
+     */
 }

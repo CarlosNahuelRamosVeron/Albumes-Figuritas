@@ -70,6 +70,17 @@ public class AlbumService {
         albumRepository.save(album);
         return figuritas;
     }
+    /*
+    @Transactional
+    public List<Figurita> cargarFiguritas(Long albumId,
+                                          List<CargarFiguritaDTO> dtos,
+                                          DistributionStrategy strategy) {
+        Album album = obetenerAlbumPorId(albumId);
+        List<Figurita> figuritas = figuritaService.guardarFiguritasEnAlbum(album, dtos, strategy, 10);
+        albumRepository.save(album);
+        return figuritas;
+    }
+     */
 
     @Transactional
     public Album publicarAlbum(Long albumId) {
