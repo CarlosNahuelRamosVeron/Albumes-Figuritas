@@ -1,4 +1,4 @@
-package com.tp.album.service;
+package com.tp.album.service.strategy;
 
 import java.util.List;
 

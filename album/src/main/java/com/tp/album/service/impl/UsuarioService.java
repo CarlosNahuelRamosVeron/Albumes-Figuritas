@@ -46,7 +46,9 @@ public class UsuarioService implements UserDetailsService {
     public Usuario actualizarUsuario(Long id, Usuario datosActualizados) {
         Usuario existente = obtenerUsuarioPorId(id);
         existente.setUsername(datosActualizados.getUsername());
-        existente.setRole(datosActualizados.getRole());
+        if (datosActualizados.getRole() != null) {
+            existente.setRole(datosActualizados.getRole().toUpperCase());
+        }
         if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isBlank()) {
             existente.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
         }

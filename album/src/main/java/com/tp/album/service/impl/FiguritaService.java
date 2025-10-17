@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Figurita;
-import com.tp.album.service.DistributionStrategy;
+import com.tp.album.service.strategy.DistributionStrategy;
 
 import java.util.ArrayList;
 import java.util.List;

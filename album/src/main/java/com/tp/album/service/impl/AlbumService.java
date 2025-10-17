@@ -6,32 +6,27 @@ import com.tp.album.model.entities.Figurita;
 import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.repository.AlbumRepository;
-import com.tp.album.model.repository.FiguritaRepository;
-import com.tp.album.service.DistributionStrategy;
-
+import com.tp.album.service.strategy.DistributionStrategy;
+import com.tp.album.service.strategy.DistributionStrategyFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final FiguritaRepository figuritaRepository;
     private final FiguritaService figuritaService;
-    private final Map<String, DistributionStrategy> estrategias;
+    private final DistributionStrategyFactory strategyFactory;
 
     public AlbumService(AlbumRepository albumRepository,
-                        FiguritaRepository figuritaRepository,
                         FiguritaService figuritaService,
-                        Map<String, DistributionStrategy> estrategias) {
+                        DistributionStrategyFactory strategyFactory) {
         this.albumRepository = albumRepository;
-        this.figuritaRepository = figuritaRepository;
         this.figuritaService = figuritaService;
-        this.estrategias = estrategias;
+        this.strategyFactory = strategyFactory;
     }
 
     public Album crearAlbum(CrearAlbumDTO dto) {
@@ -67,29 +62,11 @@ public class AlbumService {
                                 List<CargarFiguritaDTO> figuritasDTO,
                                 String modo) {
 
-        Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new IllegalArgumentException("Álbum no encontrado"));
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Álbum no encontrado"));
 
-        DistributionStrategy strategy;
-
-            //Si el admin pide automático, el sistema decide
-        if (modo.equalsIgnoreCase("automatico")) {
-            strategy = elegirEstrategiaSegunAlbum(album);
-        } else {
-            //Si elige explícitamente, se usa la que corresponda
-            strategy = estrategias.getOrDefault(modo, estrategias.get("uniforme"));
-        }
+        DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
 
         return figuritaService.crearFiguritas(album, figuritasDTO, strategy, 10);
-    }
-
-    private DistributionStrategy elegirEstrategiaSegunAlbum(Album album) {
-        int cantidad = album.getFiguritas().size();
-        if (cantidad < 10) {
-            return estrategias.get("uniforme");
-        } else {
-            return estrategias.get("ponderado");
-        }
     }
 
     public List<CargarFiguritaDTO> generarFiguritasDTO(int cantidad) {

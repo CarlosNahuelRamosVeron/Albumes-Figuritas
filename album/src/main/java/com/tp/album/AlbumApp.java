@@ -10,11 +10,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class AlbumApp {
 
 	public static void main(String[] args) {
-		ConfigurableApplicationContext context = SpringApplication.run(AlbumApp.class, args);
-
-		AlbumService albumService = context.getBean(AlbumService.class);
-		AdminConsoleMenu menu = new AdminConsoleMenu(albumService);
-		menu.mostrarMenu();
+		SpringApplication.run(AlbumApp.class, args);
 	}
 
 }

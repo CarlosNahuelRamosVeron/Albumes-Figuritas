@@ -2,13 +2,11 @@ package com.tp.album.controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.entities.Figurita;
-import com.tp.album.service.DistributionStrategy;
 import com.tp.album.service.impl.AlbumService;
 
 @RestController
