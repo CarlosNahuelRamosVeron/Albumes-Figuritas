@@ -8,6 +8,7 @@ import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.repository.AlbumRepository;
 import com.tp.album.service.strategy.DistributionStrategy;
 import com.tp.album.service.strategy.DistributionStrategyFactory;
+import com.tp.album.service.strategy.ModoDistribucion;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +61,7 @@ public class AlbumService {
     @Transactional
     public List<Figurita> cargarFiguritas(Long albumId,
                                 List<CargarFiguritaDTO> figuritasDTO,
-                                String modo) {
+                                ModoDistribucion modo) {
 
         Album album = albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Álbum no encontrado"));
 

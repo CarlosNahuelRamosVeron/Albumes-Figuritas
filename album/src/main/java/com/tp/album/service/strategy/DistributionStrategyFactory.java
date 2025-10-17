@@ -13,8 +13,8 @@ public class DistributionStrategyFactory {
         this.estrategias = estrategias;
     }
 
-    public DistributionStrategy elegirEstrategiaSegunAlbum(Album album, String modo) {
-        if (modo.equalsIgnoreCase("automatico")) {
+    public DistributionStrategy elegirEstrategiaSegunAlbum(Album album, ModoDistribucion modo) {
+        if (modo == ModoDistribucion.AUTOMATICO) {
             return album.getFiguritas().size() < 10 ?
                     estrategias.get("uniforme") : estrategias.get("ponderado");
         }

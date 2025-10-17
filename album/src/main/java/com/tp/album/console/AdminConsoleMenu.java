@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class AdminConsoleMenu {
+    /*
     private final AlbumService albumService;
     private final Scanner scanner = new Scanner(System.in);
 
@@ -76,4 +77,5 @@ public class AdminConsoleMenu {
             ));
         }
     }
+    */
 }

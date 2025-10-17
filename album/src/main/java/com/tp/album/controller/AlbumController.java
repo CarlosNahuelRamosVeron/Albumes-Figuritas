@@ -5,6 +5,7 @@ import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.service.impl.AlbumService;
 
+import com.tp.album.service.strategy.ModoDistribucion;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,7 +84,7 @@ public class AlbumController {
     @PostMapping("/{id}/cargar-figuritas")
     public ResponseEntity<?> cargarFiguritas(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "automatico") String modo,
+            @RequestParam(defaultValue = "AUTOMATICO") ModoDistribucion modo,
             @RequestBody List<CargarFiguritaDTO> figuritasDTO
     ) {
         albumService.cargarFiguritas(id, figuritasDTO, modo);

@@ -2,6 +2,7 @@ package com.tp.album.controller;
 
 import java.util.List;
 
+import com.tp.album.service.strategy.ModoDistribucion;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,9 +17,8 @@ public class FiguritaController {
     private final AlbumService albumService;
     //private final DistributionStrategy strategy;
 
-    public FiguritaController(AlbumService albumService) { //@Qualifier("ponderado") DistributionStrategy strategy
+    public FiguritaController(AlbumService albumService) {
         this.albumService = albumService;
-        //this.strategy = strategy;
     }
 
     @GetMapping("/obtener-figuritas/{albumId}")
@@ -30,7 +30,7 @@ public class FiguritaController {
     public ResponseEntity<List<Figurita>> cargarFiguritas(
             @PathVariable Long albumId,
             @RequestBody List<CargarFiguritaDTO> cargarFiguritaDTOs,
-            @RequestParam(defaultValue = "automatico") String modo) {
+            @RequestParam(defaultValue = "AUTOMATICO") ModoDistribucion modo) {
 
         List<Figurita> figuritas = albumService.cargarFiguritas(albumId, cargarFiguritaDTOs, modo);
         return ResponseEntity.ok(figuritas);
