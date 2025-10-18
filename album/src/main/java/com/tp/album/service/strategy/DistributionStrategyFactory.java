@@ -15,7 +15,7 @@ public class DistributionStrategyFactory {
 
     public DistributionStrategy elegirEstrategiaSegunAlbum(Album album, ModoDistribucion modo) {
         if (modo == ModoDistribucion.AUTOMATICO) {
-            return album.getContenidos().size() < 10 ?
+            return album.getTotalFiguritas() < 10 ?
                     estrategias.get("uniforme") : estrategias.get("ponderado");
         }
         return estrategias.getOrDefault(modo.name().toLowerCase(), estrategias.get("uniforme"));
