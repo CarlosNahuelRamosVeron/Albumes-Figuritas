@@ -16,13 +16,11 @@ public class UniformeImpl implements DistributionStrategy {
     private final Rareza[] niveles = Rareza.values();
 
     @Override
-    public void asignarRarezaYStock(List<Figurita> figuritas, int defaultStockPorFigurita) {
-        for (Figurita figurita : figuritas) {
-            Rareza r = niveles[random.nextInt(niveles.length)];
-            figurita.setRareza(r);
-            int multiplicador = (r == Rareza.COMUN) ? 1 : (r == Rareza.RARA) ? 1 : 1;
-            figurita.setStockTotal(defaultStockPorFigurita / multiplicador);
-            figurita.setStockDisponible(figurita.getStockTotal());
-        }
+    public void asignarRarezaYStock(Figurita figurita, int defaultStockPorFigurita) {
+        Rareza r = niveles[random.nextInt(niveles.length)];
+        figurita.setRareza(r);
+        int multiplicador = (r == Rareza.COMUN) ? 1 : (r == Rareza.RARA) ? 1 : 1;
+        figurita.setStockTotal(defaultStockPorFigurita / multiplicador);
+        figurita.setStockDisponible(figurita.getStockTotal());
     }
 }

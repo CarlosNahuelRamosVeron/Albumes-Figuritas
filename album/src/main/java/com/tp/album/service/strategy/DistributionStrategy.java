@@ -5,5 +5,5 @@ import java.util.List;
 import com.tp.album.model.entities.Figurita;
 
 public interface DistributionStrategy {
-    void asignarRarezaYStock(List<Figurita> figuritas, int defaultStockPorFigurita);
+    void asignarRarezaYStock(Figurita figurita, int defaultStockPorFigurita);
 }

@@ -16,8 +16,7 @@ public class PonderadoImpl implements DistributionStrategy {
 
     // por ejemplo: 0.7 comun, 0.25 rara, 0.05 epica
     @Override
-    public void asignarRarezaYStock(List<Figurita> figuritas, int defaultStockPorFigurita) {
-        for (Figurita figurita : figuritas) {
+    public void asignarRarezaYStock(Figurita figurita, int defaultStockPorFigurita) {
             double r = random.nextDouble();
             if (r < 0.7) {
                 figurita.setRareza(Rareza.COMUN);
@@ -30,6 +29,5 @@ public class PonderadoImpl implements DistributionStrategy {
                 figurita.setStockTotal(Math.max(1, defaultStockPorFigurita / 5));
             }
             figurita.setStockDisponible(figurita.getStockTotal());
-        }
     }
 }

@@ -1,12 +1,6 @@
 package com.tp.album.model.entities;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -24,20 +18,28 @@ public class Album {
     private String descripcion;
     private String categoria;
     private String creador; //admin --> a cambiar por usuario
-    private String dificultad; //facil, medio, dificil - calculada al publicar
+    @Enumerated(EnumType.STRING)
+    private Dificultad dificultad; //facil, medio, dificil - calculada al publicar
     private Integer totalFiguritas = 10; //minimo 10
     private boolean publicado;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
-    @OneToMany(
-        mappedBy = "album",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-    )
-    private List<Figurita> figuritas = new ArrayList<>();
+
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Contenido> contenidos = new ArrayList<>();
     
-    public void addFigurita(Figurita figurita) {
-        figuritas.add(figurita);
-        figurita.setAlbum(this);
-        this.totalFiguritas = figuritas.size();
+    public void addContenido(Contenido contenido) {
+        this.contenidos.add(contenido);
+        contenido.setAlbum(this);
+        this.totalFiguritas = this.contenidos.stream().map(Contenido::contarFiguritas).reduce(0, Integer::sum);
+    }
+
+    public Double calcularRarezaPromedio() {
+        return this.getContenidos().stream()
+                .mapToDouble(Contenido::getRarezaValue)
+                .average().orElse(1.0);
+    }
+
+    public void setDificultadByRarezaScore(double rarezaScore) {
+        this.dificultad = Dificultad.fromScore(rarezaScore);
     }
 }
