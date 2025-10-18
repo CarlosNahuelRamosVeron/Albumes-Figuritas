@@ -1,8 +1,9 @@
 package com.tp.album.controller;
 
-import com.tp.album.model.dto.CargarFiguritaDTO;
+import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
+import com.tp.album.model.entities.Contenido;
 import com.tp.album.service.impl.AlbumService;
 
 import com.tp.album.service.strategy.ModoDistribucion;
@@ -25,17 +26,15 @@ public class AlbumController {
         this.albumService = albumService;
     }
 
-    //get all
     @GetMapping
     public ResponseEntity<List<Album>> obtenerAlbumes() {
         return ResponseEntity.ok(albumService.obtenerAlbumes());
     }
 
-    //get by id
-    @GetMapping("/{albumId}")
-    public ResponseEntity<Album> obetenerAlbumPorId(@PathVariable Long albumId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Album> obtenerAlbumPorId(@PathVariable Long id) {
         try {
-            Album album = albumService.obtenerAlbumPorId(albumId);
+            Album album = albumService.obtenerAlbumPorId(id);
             return ResponseEntity.ok(album);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -48,7 +47,6 @@ public class AlbumController {
         return ResponseEntity.ok(albumGuardado);
     }
 
-    //create
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Album> crearAlbum(@Valid @RequestBody CrearAlbumDTO dto) {
@@ -56,7 +54,6 @@ public class AlbumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(albumGuardado);
     }
 
-    //delete
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarAlbum(@PathVariable Long id) {
@@ -68,11 +65,9 @@ public class AlbumController {
         }
     }
 
-    //update
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Album> actualizarAlbum(@PathVariable Long id,
-                                                 @Valid @RequestBody CrearAlbumDTO dto) {
+    public ResponseEntity<Album> actualizarAlbum(@PathVariable Long id, @Valid @RequestBody CrearAlbumDTO dto) {
         try {
             Album albumActualizado = albumService.actualizarAlbum(id, dto);
             return ResponseEntity.ok(albumActualizado);
@@ -81,13 +76,17 @@ public class AlbumController {
         }
     }
 
-    @PostMapping("/{id}/cargar-figuritas")
-    public ResponseEntity<?> cargarFiguritas(
+    @GetMapping("/{id}/contenido")
+    public ResponseEntity<List<Contenido>> obtenerContenido(@PathVariable Long id) {
+        return ResponseEntity.ok(albumService.obtenerContenido(id));
+    }
+
+    @PostMapping("/{id}/contenido")
+    public ResponseEntity<?> cargarContenido(
             @PathVariable Long id,
             @RequestParam(defaultValue = "AUTOMATICO") ModoDistribucion modo,
-            @RequestBody List<CargarFiguritaDTO> figuritasDTO
-    ) {
-        albumService.cargarFiguritas(id, figuritasDTO, modo);
+            @RequestBody List<ContenidoDTO> contenidosDTO) {
+        albumService.cargarContenido(id, contenidosDTO, modo);
         return ResponseEntity.ok("Figuritas cargadas con modo " + modo);
     }
 }

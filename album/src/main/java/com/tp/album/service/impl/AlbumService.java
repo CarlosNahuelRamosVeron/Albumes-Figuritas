@@ -1,10 +1,9 @@
 package com.tp.album.service.impl;
 
-import com.tp.album.model.entities.Album;
-import com.tp.album.model.entities.Rareza;
-import com.tp.album.model.entities.Figurita;
-import com.tp.album.model.dto.CargarFiguritaDTO;
+import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
+import com.tp.album.model.entities.Album;
+import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.repository.AlbumRepository;
 import com.tp.album.service.strategy.DistributionStrategy;
 import com.tp.album.service.strategy.DistributionStrategyFactory;
@@ -12,21 +11,20 @@ import com.tp.album.service.strategy.ModoDistribucion;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final FiguritaService figuritaService;
+    private final ContenidoService contenidoService;
     private final DistributionStrategyFactory strategyFactory;
 
     public AlbumService(AlbumRepository albumRepository,
-                        FiguritaService figuritaService,
+                        ContenidoService contenidoService,
                         DistributionStrategyFactory strategyFactory) {
         this.albumRepository = albumRepository;
-        this.figuritaService = figuritaService;
+        this.contenidoService = contenidoService;
         this.strategyFactory = strategyFactory;
     }
 
@@ -49,64 +47,33 @@ public class AlbumService {
 
     @Transactional
     public void eliminarAlbum(Long id) {
-        Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
-        albumRepository.delete(album);
+        albumRepository.deleteById(id);
     }
 
-    public List<Figurita> obtenerFiguritas(Long albumId) {
-        return albumRepository.findById(albumId).get().getFiguritas();
+    public List<Contenido> obtenerContenido(Long albumId) {
+        Album album = this.obtenerAlbumPorId(albumId);
+        return album.getContenidos();
     }
 
     @Transactional
-    public List<Figurita> cargarFiguritas(Long albumId,
-                                List<CargarFiguritaDTO> figuritasDTO,
-                                ModoDistribucion modo) {
-
-        Album album = albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Álbum no encontrado"));
-
+    public List<Contenido> cargarContenido(Long albumId, List<ContenidoDTO> contenidosDTO, ModoDistribucion modo) {
+        Album album = this.obtenerAlbumPorId(albumId);
         DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
-
-        return figuritaService.crearFiguritas(album, figuritasDTO, strategy, 10);
-    }
-
-    public List<CargarFiguritaDTO> generarFiguritasDTO(int cantidad) {
-        List<CargarFiguritaDTO> lista = new ArrayList<>();
-        for (int i = 1; i <= cantidad; i++) {
-            CargarFiguritaDTO dto = new CargarFiguritaDTO();
-            dto.setNombre("Figurita " + i);
-            dto.setNumero(i);
-            lista.add(dto);
-        }
-        return lista;
+        return contenidoService.creaContenidos(album, contenidosDTO, strategy, 10);
     }
 
     @Transactional
     public Album publicarAlbum(Long albumId) {
         Album album = albumRepository.findById(albumId).orElseThrow();
-        // calcular dificultad por rareza promedio
-        double score = album.getFiguritas().stream()
-            .mapToDouble(f -> 
-                f.getRareza() == Rareza.COMUN ? 1 
-                    : f.getRareza() == Rareza.RARA ? 2 
-                        : 3
-            )
-            .average().orElse(1.0);
-        if (score < 1.5) {
-            album.setDificultad("FACIL");
-        } else if (score < 2.5) {
-            album.setDificultad("MEDIO");
-        } else {
-            album.setDificultad("DIFICIL");
-        }
+        Double rarezaScore = album.calcularRarezaPromedio();
+        album.setDificultadByRarezaScore(rarezaScore);
         album.setPublicado(true);
         return albumRepository.save(album);
     }
 
     @Transactional
     public Album actualizarAlbum(Long id, CrearAlbumDTO dto) {
-        Album album = albumRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
+        Album album = this.obtenerAlbumPorId(id);
         album.setTitulo(dto.getTitulo());
         album.setDescripcion(dto.getDescripcion());
         album.setCategoria(dto.getCategoria());
