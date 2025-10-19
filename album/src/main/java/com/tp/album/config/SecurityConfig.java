@@ -2,9 +2,11 @@ package com.tp.album.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,12 +19,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable() // solo si usas API REST
+            .csrf(AbstractHttpConfigurer::disable) // Cross-Site Request Forgery, desactivado solo si usas API REST
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/albums/**").authenticated() // todos endpoints requieren login
                     .anyRequest().permitAll()
             )
-            .httpBasic(); // autenticación básica para ejemplo
+            .httpBasic(Customizer.withDefaults()); // autenticación básica para ejemplo
             //.addFilterBefore(jwtAuth(), UsernamePasswordAuthenticationFilter.class); //para hacer mas robusta la auth
         return http.build();
     }
