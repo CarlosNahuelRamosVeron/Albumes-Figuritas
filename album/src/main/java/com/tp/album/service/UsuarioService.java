@@ -1,8 +1,11 @@
 package com.tp.album.service;
 
 import com.tp.album.config.SecurityUser;
+import com.tp.album.model.dto.CrearUsuarioDTO;
 import com.tp.album.model.entities.Usuario;
+import com.tp.album.model.enumeration.UsuarioRole;
 import com.tp.album.model.repository.UsuarioRepository;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,8 +32,13 @@ public class UsuarioService implements UserDetailsService {
         return new SecurityUser(user);
     }
 
-    public Usuario crearUsuario(Usuario usuario) {
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    public Usuario crearUsuario(CrearUsuarioDTO crearUsuarioDTO) {
+        crearUsuarioDTO.setPassword(passwordEncoder.encode(crearUsuarioDTO.getPassword()));
+        UsuarioRole role = UsuarioRole.valueOf(crearUsuarioDTO.getRole());
+        Usuario usuario = new Usuario();
+        usuario.setUsername(crearUsuarioDTO.getUsername());
+        usuario.setPassword(crearUsuarioDTO.getPassword());
+        usuario.setRole(role);
         return usuarioRepository.save(usuario);
     }
 
@@ -47,7 +55,7 @@ public class UsuarioService implements UserDetailsService {
         Usuario existente = obtenerUsuarioPorId(id);
         existente.setUsername(datosActualizados.getUsername());
         if (datosActualizados.getRole() != null) {
-            existente.setRole(datosActualizados.getRole().toUpperCase());
+            existente.setRole(datosActualizados.getRole());
         }
         if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isBlank()) {
             existente.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
@@ -56,7 +64,7 @@ public class UsuarioService implements UserDetailsService {
         return usuarioRepository.save(existente);
     }
 
-    public void eliminarUsuario(Long id) {
+    public void eliminarUsuarioPorId(Long id) {
         usuarioRepository.deleteById(id);
     }
 

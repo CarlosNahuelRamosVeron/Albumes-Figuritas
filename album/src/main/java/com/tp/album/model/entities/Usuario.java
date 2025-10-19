@@ -1,5 +1,7 @@
 package com.tp.album.model.entities;
 
+import com.tp.album.model.enumeration.UsuarioRole;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -15,5 +17,5 @@ public class Usuario {
     private Long id;
     private String username;
     private String password;
-    private String role; //ADMIN OR USER
+    private UsuarioRole role; //ADMIN OR USER
 }
