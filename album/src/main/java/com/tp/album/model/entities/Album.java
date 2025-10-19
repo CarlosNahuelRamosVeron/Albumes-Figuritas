@@ -25,7 +25,6 @@ public class Album {
     private Integer totalFiguritas = 10; //minimo 10
     private boolean publicado;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
-
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Contenido> contenidos = new ArrayList<>();
     

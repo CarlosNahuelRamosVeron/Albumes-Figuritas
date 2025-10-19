@@ -1,5 +1,6 @@
 package com.tp.album.controller;
 
+import com.tp.album.config.SecurityUser;
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
@@ -11,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -50,7 +52,10 @@ public class AlbumController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Album> crearAlbum(@Valid @RequestBody CrearAlbumDTO dto) {
-        Album albumGuardado = albumService.crearAlbum(dto);
+        SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext()
+                                        .getAuthentication()
+                                        .getPrincipal();
+        Album albumGuardado = albumService.crearAlbum(dto, securityUser.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(albumGuardado);
     }
 

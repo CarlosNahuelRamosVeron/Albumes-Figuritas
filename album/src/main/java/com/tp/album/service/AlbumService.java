@@ -29,12 +29,12 @@ public class AlbumService {
         this.strategyFactory = strategyFactory;
     }
 
-    public Album crearAlbum(CrearAlbumDTO dto) {
+    public Album crearAlbum(CrearAlbumDTO dto, String creador) {
         Album album = new Album();
         album.setTitulo(dto.getTitulo());
         album.setDescripcion(dto.getDescripcion());
         album.setCategoria(dto.getCategoria());
-        album.setPublicado(false);
+        album.setCreador(creador);
         return albumRepository.save(album);
     }
 
