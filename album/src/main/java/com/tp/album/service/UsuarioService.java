@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -32,14 +33,23 @@ public class UsuarioService implements UserDetailsService {
         return new SecurityUser(user);
     }
 
-    public Usuario crearUsuario(CrearUsuarioDTO crearUsuarioDTO) {
-        crearUsuarioDTO.setPassword(passwordEncoder.encode(crearUsuarioDTO.getPassword()));
-        UsuarioRole role = UsuarioRole.valueOf(crearUsuarioDTO.getRole());
-        Usuario usuario = new Usuario();
-        usuario.setUsername(crearUsuarioDTO.getUsername());
-        usuario.setPassword(crearUsuarioDTO.getPassword());
-        usuario.setRole(role);
-        return usuarioRepository.save(usuario);
+    public Usuario crearUsuario(CrearUsuarioDTO crearUsuarioDTO) throws Exception {
+        Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(crearUsuarioDTO.getUsername());
+        if (usuarioOptional.isEmpty()) {
+            crearUsuarioDTO.setPassword(passwordEncoder.encode(crearUsuarioDTO.getPassword()));
+            UsuarioRole role = UsuarioRole.valueOf(crearUsuarioDTO.getRole());
+            Usuario usuario = new Usuario();
+            usuario.setUsername(crearUsuarioDTO.getUsername());
+            usuario.setPassword(crearUsuarioDTO.getPassword());
+            usuario.setRole(role);
+            return usuarioRepository.save(usuario);
+        } else {
+            throw new Exception("El nombre de usuario ya existe, intente con otro.");
+        }
+    }
+
+    public Optional<Usuario> obtenerUsuarioPorUsername(String username) {
+        return usuarioRepository.findByUsername(username);
     }
 
     public List<Usuario> obtenerUsuarios() {

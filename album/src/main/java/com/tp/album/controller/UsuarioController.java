@@ -24,7 +24,7 @@ public class UsuarioController {
         try {
             return ResponseEntity.ok(usuarioService.crearUsuario(crearUsuarioDTO).toString());   
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage() + "\nRole incorrecto, utilice ADMIN o USUARIO.");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
