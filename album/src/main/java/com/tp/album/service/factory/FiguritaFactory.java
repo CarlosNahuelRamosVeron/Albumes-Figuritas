@@ -6,8 +6,6 @@ import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Figurita;
 import com.tp.album.service.strategy.DistributionStrategy;
 
-import java.util.List;
-
 public class FiguritaFactory extends ContenidoFactory {
 
     public FiguritaFactory(DistributionStrategy strategy, int defaultStock) {

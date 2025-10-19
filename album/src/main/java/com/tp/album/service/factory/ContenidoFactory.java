@@ -5,7 +5,9 @@ import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.service.strategy.DistributionStrategy;
 
+import lombok.Data;
 
+@Data
 public abstract class ContenidoFactory {
 
     private DistributionStrategy strategy;
@@ -26,12 +28,5 @@ public abstract class ContenidoFactory {
         }
     }
 
-    public DistributionStrategy getStrategy() {
-        return strategy;
-    }
-
-    public int getDefaultStock() {
-        return defaultStock;
-    }
 }
 

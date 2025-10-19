@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tp.album.model.enumeration.Dificultad;
+
 @Data
 @Entity
 @Table(name = "album")

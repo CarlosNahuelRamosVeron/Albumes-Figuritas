@@ -1,13 +1,14 @@
-package com.tp.album.service.impl;
+package com.tp.album.service;
 
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
+import com.tp.album.model.enumeration.ModoDistribucion;
 import com.tp.album.model.repository.AlbumRepository;
 import com.tp.album.service.strategy.DistributionStrategy;
 import com.tp.album.service.strategy.DistributionStrategyFactory;
-import com.tp.album.service.strategy.ModoDistribucion;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

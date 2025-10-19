@@ -1,12 +1,12 @@
-package com.tp.album.service.strategy;
+package com.tp.album.service.strategy.impl;
 
-import com.tp.album.model.entities.Rareza;
+import com.tp.album.service.strategy.DistributionStrategy;
 import com.tp.album.model.entities.Figurita;
+import com.tp.album.model.enumeration.Rareza;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Random;
 
 @Component("uniforme")

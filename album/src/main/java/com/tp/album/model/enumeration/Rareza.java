@@ -1,4 +1,4 @@
-package com.tp.album.model.entities;
+package com.tp.album.model.enumeration;
 
 public enum Rareza {
     COMUN(1),

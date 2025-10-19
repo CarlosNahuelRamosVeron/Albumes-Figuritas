@@ -1,4 +1,4 @@
-package com.tp.album.service.impl;
+package com.tp.album.service;
 
 import com.tp.album.config.SecurityUser;
 import com.tp.album.model.entities.Usuario;

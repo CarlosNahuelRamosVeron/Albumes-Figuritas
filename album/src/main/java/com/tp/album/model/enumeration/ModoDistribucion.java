@@ -1,4 +1,4 @@
-package com.tp.album.service.strategy;
+package com.tp.album.model.enumeration;
 
 public enum ModoDistribucion {
     AUTOMATICO,

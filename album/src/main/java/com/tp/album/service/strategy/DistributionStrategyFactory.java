@@ -1,6 +1,8 @@
 package com.tp.album.service.strategy;
 
 import com.tp.album.model.entities.Album;
+import com.tp.album.model.enumeration.ModoDistribucion;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

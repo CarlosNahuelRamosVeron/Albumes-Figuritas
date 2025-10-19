@@ -1,5 +1,7 @@
 package com.tp.album.model.entities;
 
+import com.tp.album.model.enumeration.Rareza;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

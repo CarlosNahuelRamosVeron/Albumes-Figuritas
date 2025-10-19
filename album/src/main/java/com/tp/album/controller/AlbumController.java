@@ -4,9 +4,9 @@ import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
-import com.tp.album.service.impl.AlbumService;
+import com.tp.album.model.enumeration.ModoDistribucion;
+import com.tp.album.service.AlbumService;
 
-import com.tp.album.service.strategy.ModoDistribucion;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

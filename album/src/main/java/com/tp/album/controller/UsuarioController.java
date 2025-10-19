@@ -1,7 +1,8 @@
 package com.tp.album.controller;
 
 import com.tp.album.model.entities.Usuario;
-import com.tp.album.service.impl.UsuarioService;
+import com.tp.album.service.UsuarioService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

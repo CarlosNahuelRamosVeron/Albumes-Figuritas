@@ -2,7 +2,7 @@ package com.tp.album.console;
 
 import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.entities.Album;
-import com.tp.album.service.impl.AlbumService;
+import com.tp.album.service.AlbumService;
 
 import java.util.List;
 import java.util.Scanner;

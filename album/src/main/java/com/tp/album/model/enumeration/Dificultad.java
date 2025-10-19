@@ -1,4 +1,4 @@
-package com.tp.album.model.entities;
+package com.tp.album.model.enumeration;
 
 public enum Dificultad {
     FACIL(0, 1.5),

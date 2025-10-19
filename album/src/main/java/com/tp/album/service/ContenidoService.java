@@ -1,4 +1,4 @@
-package com.tp.album.service.impl;
+package com.tp.album.service;
 
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.entities.Contenido;
@@ -16,8 +16,10 @@ public class ContenidoService {
 
     public List<Contenido> creaContenidos(Album album, List<ContenidoDTO> contenidosDTO, DistributionStrategy strategy, int defaultStock) {
         return contenidosDTO.stream()
-                .map(dto -> ContenidoFactory.getFactory(dto, strategy, defaultStock).crearDesdeDTO(dto, album))
-                .collect(Collectors.toList());
+                .map(dto -> ContenidoFactory
+                    .getFactory(dto, strategy, defaultStock)
+                    .crearDesdeDTO(dto, album)
+                ).collect(Collectors.toList());
     }
 
 }
