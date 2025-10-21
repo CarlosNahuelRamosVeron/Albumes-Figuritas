@@ -1,9 +1,8 @@
-package com.tp.album.service;
+package com.tp.album.service.impl;
 
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.service.strategy.CreadorContenidoStrategyFactory;
-import com.tp.album.service.validation.ImageValidation;
 import org.springframework.stereotype.Service;
 
 import com.tp.album.model.entities.Album;
@@ -15,15 +14,10 @@ import java.util.stream.Collectors;
 @Service
 public class ContenidoService {
 
-    private final ImageValidation imageValidator;
-
-    public ContenidoService(ImageValidation imageValidator) {
-        this.imageValidator = imageValidator;
-    }
-
     public List<Contenido> creaContenidos(Album album, List<ContenidoDTO> contenidosDTO, DistributionStrategy strategy, int defaultStock) {
         return contenidosDTO.stream()
-                .map(dto -> CreadorContenidoStrategyFactory.getFactory(dto, strategy, defaultStock, imageValidator).crearDesdeDTO(dto, album))
+                .map(dto -> CreadorContenidoStrategyFactory.getFactory(dto, strategy, defaultStock).crearDesdeDTO(dto, album))
                 .collect(Collectors.toList());
     }
+
 }
