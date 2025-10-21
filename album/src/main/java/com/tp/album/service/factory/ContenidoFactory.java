@@ -5,6 +5,7 @@ import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.service.strategy.DistributionStrategy;
 
+import com.tp.album.service.validation.ImageValidation;
 import lombok.Data;
 
 @Data
@@ -18,9 +19,11 @@ public abstract class ContenidoFactory {
         this.defaultStock = defaultStock;
     }
 
-    public abstract Contenido crearDesdeDTO(ContenidoDTO dto, Album album);
+    public abstract Contenido crearDesdeDTO(ContenidoDTO dto, Album album, ImageValidation validator);
 
-    public static ContenidoFactory getFactory(ContenidoDTO dto, DistributionStrategy strategy, int defaultStock) {
+    public static ContenidoFactory getFactory(ContenidoDTO dto,
+                                              DistributionStrategy strategy,
+                                              int defaultStock) {
         switch (dto.getTipo()) {
             case "FIGURITA": return new FiguritaFactory(strategy, defaultStock);
             case "SECCION": return new SeccionFactory(strategy, defaultStock);
