@@ -2,7 +2,6 @@ package com.tp.album.service;
 
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
-import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.repository.AlbumRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

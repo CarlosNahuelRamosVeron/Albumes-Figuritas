@@ -8,7 +8,6 @@ import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.entities.Figurita;
 import com.tp.album.model.entities.Seccion;
 import com.tp.album.service.validation.ImageValidation;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,7 +86,4 @@ public  class CreadorContenidoFactory {
         seccion.setContenidos(contenidosHijos);
     }
 
-
-
 }
-

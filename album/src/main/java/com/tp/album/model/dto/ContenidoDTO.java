@@ -3,7 +3,6 @@ package com.tp.album.model.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
 @JsonTypeInfo(

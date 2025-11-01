@@ -3,7 +3,6 @@ package com.tp.album.controller;
 import com.tp.album.config.SecurityUser;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
-import com.tp.album.model.entities.Contenido;
 import com.tp.album.service.AlbumService;
 
 import jakarta.validation.Valid;
@@ -17,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/albums")
+@RequestMapping("/album")
 public class AlbumController {
 
     private final AlbumService albumService;
@@ -26,7 +25,7 @@ public class AlbumController {
         this.albumService = albumService;
     }
 
-    @GetMapping
+    @GetMapping("/todos")
     public ResponseEntity<List<Album>> obtenerAlbumes() {
         return ResponseEntity.ok(albumService.obtenerAlbumes());
     }
