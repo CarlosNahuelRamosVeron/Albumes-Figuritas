@@ -1,8 +1,8 @@
 package com.tp.album.controller;
 
 import com.tp.album.config.JwtService;
-import com.tp.album.model.dto.LoginRequest;
-import com.tp.album.model.dto.TokenResponse;
+import com.tp.album.model.dto.LoginRequestDTO;
+import com.tp.album.model.dto.TokenResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,14 +24,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponseDTO> login(@RequestBody LoginRequestDTO request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String token = jwtService.generateToken(userDetails);
-            return ResponseEntity.ok(new TokenResponse(token));
+            return ResponseEntity.ok(new TokenResponseDTO(token));
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(401).build();
         }

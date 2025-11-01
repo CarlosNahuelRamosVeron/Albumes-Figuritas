@@ -1,10 +1,10 @@
 package com.tp.album.model.dto;
 
-public class TokenResponse {
+public class TokenResponseDTO {
     private String token;
     private String tokenType = "Bearer";
 
-    public TokenResponse(String token) {
+    public TokenResponseDTO(String token) {
         this.token = token;
     }
 

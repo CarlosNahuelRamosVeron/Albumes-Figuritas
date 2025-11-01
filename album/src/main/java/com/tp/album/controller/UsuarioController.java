@@ -25,30 +25,30 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody CrearUsuarioDTO crearUsuarioDTO) {
         try {
             Usuario creado = usuarioService.crearUsuario(crearUsuarioDTO);
-            UsuarioResponseDTO body = new UsuarioResponseDTO(
-                creado.getId(),
-                creado.getUsername(),
-                creado.getRole() != null ? creado.getRole().name() : null
-            );
-            return ResponseEntity.created(URI.create("/usuarios/" + creado.getId())).body(body);
+            UsuarioResponseDTO body = new UsuarioResponseDTO(creado);
+            return ResponseEntity.created(URI.create("/usuarios/" + body.getId())).body(body);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerUsuarios() {
-        return ResponseEntity.ok(usuarioService.obtenerUsuarios());
+    public ResponseEntity<List<UsuarioResponseDTO>> obtenerUsuarios() {
+        List <Usuario> usuarios = usuarioService.obtenerUsuarios();
+        List <UsuarioResponseDTO> response = usuarios.stream().map(UsuarioResponseDTO::new).toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.obtenerUsuarioPorId(id));
+    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioPorId(@PathVariable Long id) {
+        Usuario usuario = usuarioService.obtenerUsuarioPorId(id);
+        return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        return ResponseEntity.ok(usuarioService.actualizarUsuario(id, usuario));
+    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+        Usuario actualizado = usuarioService.actualizarUsuario(id, usuario);
+        return ResponseEntity.ok(new UsuarioResponseDTO(actualizado));
     }
 
     @DeleteMapping("/{id}")

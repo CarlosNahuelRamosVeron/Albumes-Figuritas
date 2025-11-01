@@ -2,7 +2,7 @@ package com.tp.album.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginRequest {
+public class LoginRequestDTO {
     @NotBlank
     private String username;
     @NotBlank
