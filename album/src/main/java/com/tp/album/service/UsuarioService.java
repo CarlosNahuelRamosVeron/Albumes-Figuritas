@@ -7,8 +7,6 @@ import com.tp.album.model.entities.Usuario;
 import com.tp.album.model.enumeration.UsuarioRole;
 import com.tp.album.model.repository.UsuarioRepository;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;

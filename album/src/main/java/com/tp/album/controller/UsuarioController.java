@@ -10,15 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -51,7 +49,7 @@ public class UsuarioController {
         return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
-    @PutMapping("")
+    @PutMapping
     public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@RequestBody ActualizarUsuarioDTO dto) {
         try {
             Usuario actualizado = usuarioService.actualizarUsuario(dto);
