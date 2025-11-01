@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/contenido")
+@RequestMapping("/contenidos")
 public class ContenidoController {
 
     private final ContenidoService contenidoService;
@@ -23,7 +23,7 @@ public class ContenidoController {
         this.contenidoService = contenidoService;
     }
 
-    @PostMapping("/album/{id}")
+    @PostMapping("/albums/{albumId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Contenido>> cargarContenido(@PathVariable("id") Long albumId,
                                                     @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
@@ -36,7 +36,7 @@ public class ContenidoController {
         }
     }
 
-    @GetMapping("/album/{id}")
+    @GetMapping("/albums/{albumId}")
     public ResponseEntity<List<Contenido>> obtenerContenidosByAlbumId(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(contenidoService.obtenerContenidoByAlbumId(id));
@@ -47,7 +47,7 @@ public class ContenidoController {
 
     @GetMapping("/{contenidoId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Contenido> obtenerContenido(@RequestParam Long contenidoId) {
+    public ResponseEntity<Contenido> obtenerContenido(@PathVariable Long contenidoId) {
         try {
             Contenido contenido = contenidoService.obtenerContenido(contenidoId);
             return ResponseEntity.ok(contenido);
@@ -59,7 +59,7 @@ public class ContenidoController {
 
     @DeleteMapping("/{contenidoId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminarContenido(@RequestParam Long contenidoId) {
+    public ResponseEntity<Void> eliminarContenido(@PathVariable Long contenidoId) {
         contenidoService.eliminarContenido(contenidoId);
         return ResponseEntity.noContent().build();
     }

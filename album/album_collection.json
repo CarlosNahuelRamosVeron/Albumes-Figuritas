@@ -1,0 +1,224 @@
+{
+  "info": {
+    "name": "Album API - Bruno Import",
+    "_postman_id": "b5ad2c38-4d74-4f3c-9f59-6e3d3d8c1a10",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Colección de requests para probar la API (importable en Bruno). Variables: {{baseUrl}} y {{token}}. Path params con dos puntos (:usuarioId, :albumId, :contenidoId)."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar usuario (publico)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": "{{baseUrl}}/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\",\n  \"role\": \"ADMIN\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login (obtener JWT)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { console.log('No JSON body'); }",
+                  "const token = json && json.token ? json.token : null;",
+                  "if (token) {",
+                  "  pm.collectionVariables.set('token', token);",
+                  "  if (pm.environment && pm.environment.set) { pm.environment.set('token', token); }",
+                  "  console.log('Token saved to collection variable: token');",
+                  "} else {",
+                  "  console.warn('Token not found in response');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/usuarios"
+          }
+        },
+        {
+          "name": "Obtener usuario por id",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/usuarios/:usuarioId"
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/usuarios",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"username\": \"nuevo-username\",\n  \"password\": \"nuevaPass123\",\n  \"role\": \"USER\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/usuarios/:usuarioId"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Albums",
+      "item": [
+        {
+          "name": "Listar albums",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/albums"
+          }
+        },
+        {
+          "name": "Obtener album por id",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/albums/:albumId"
+          }
+        },
+        {
+          "name": "Crear album (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/albums",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Album de Prueba\",\n  \"descripcion\": \"Descripcion del album\",\n  \"categoria\": \"DEPORTES\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Actualizar album (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/albums/:albumId",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Album Actualizado\",\n  \"descripcion\": \"Descripcion actualizada\",\n  \"categoria\": \"MUSICA\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Eliminar album (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/albums/:albumId"
+          }
+        },
+        {
+          "name": "Publicar album (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/albums/:albumId/publicar"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contenidos",
+      "item": [
+        {
+          "name": "Listar contenidos por album",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/contenidos/albums/:albumId"
+          }
+        },
+        {
+          "name": "Cargar contenidos (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/contenidos/albums/:albumId?modo=AUTOMATICO",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"tipo\": \"SECCION\",\n    \"nombre\": \"Seccion A\",\n    \"descripcion\": \"Intro de la seccion\",\n    \"contenidos\": [\n      { \"tipo\": \"FIGURITA\", \"nombre\": \"Fig 1\", \"numero\": 1, \"archivoImagen\": null },\n      { \"tipo\": \"FIGURITA\", \"nombre\": \"Fig 2\", \"numero\": 2, \"archivoImagen\": null }\n    ]\n  },\n  {\n    \"tipo\": \"FIGURITA\",\n    \"nombre\": \"Fig 3\",\n    \"numero\": 3,\n    \"archivoImagen\": null\n  }\n]",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Obtener contenido por id (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/contenidos/:contenidoId"
+          }
+        },
+        {
+          "name": "Eliminar contenido por id (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": "{{baseUrl}}/contenidos/:contenidoId"
+          }
+        }
+      ]
+    }
+  ]
+}

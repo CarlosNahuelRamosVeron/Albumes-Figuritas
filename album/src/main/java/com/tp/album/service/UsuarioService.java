@@ -1,11 +1,16 @@
 package com.tp.album.service;
 
 import com.tp.album.config.SecurityUser;
+import com.tp.album.model.dto.ActualizarUsuarioDTO;
 import com.tp.album.model.dto.CrearUsuarioDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.model.enumeration.UsuarioRole;
 import com.tp.album.model.repository.UsuarioRepository;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -61,22 +66,38 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-    public Usuario actualizarUsuario(Long id, Usuario datosActualizados) {
-        Usuario existente = obtenerUsuarioPorId(id);
-        existente.setUsername(datosActualizados.getUsername());
+    public Usuario actualizarUsuario(ActualizarUsuarioDTO datosActualizados) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario usuario = this.obtenerUsuarioPorId(datosActualizados.getId());
+        validarPermisoAdminOMismoUsuario(usuario, auth);
+
+        usuario.setUsername(datosActualizados.getUsername());
         if (datosActualizados.getRole() != null) {
-            existente.setRole(datosActualizados.getRole());
+            UsuarioRole nuevoRol = UsuarioRole.valueOf(datosActualizados.getRole().trim().toUpperCase());
+            usuario.setRole(nuevoRol);
         }
         if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isBlank()) {
-            existente.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
+            usuario.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
         }
-
-        return usuarioRepository.save(existente);
+        return usuarioRepository.save(usuario);
     }
 
     public void eliminarUsuarioPorId(Long id) {
-        usuarioRepository.deleteById(id);
+        Usuario usuario = this.obtenerUsuarioPorId(id);
+        validarPermisoAdminOMismoUsuario(usuario, SecurityContextHolder.getContext().getAuthentication());
+        usuarioRepository.delete(usuario);
     }
 
+    private void validarPermisoAdminOMismoUsuario(Usuario usuario, Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("Usuario no autenticado");
+        }
+        String requester = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        boolean isSelf = requester != null && requester.equals(usuario.getUsername());
+        if (!isSelf && !isAdmin) {
+            throw new AccessDeniedException("No tiene permisos para modificar este usuario");
+        }
+    }
 
 }

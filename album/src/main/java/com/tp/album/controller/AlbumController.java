@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/album")
+@RequestMapping("/albums")
 public class AlbumController {
 
     private final AlbumService albumService;
@@ -25,7 +25,7 @@ public class AlbumController {
         this.albumService = albumService;
     }
 
-    @GetMapping("/todos")
+    @GetMapping
     public ResponseEntity<List<Album>> obtenerAlbumes() {
         return ResponseEntity.ok(albumService.obtenerAlbumes());
     }
