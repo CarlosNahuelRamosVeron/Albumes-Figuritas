@@ -2,7 +2,10 @@ package com.tp.album.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import lombok.Data;
+import lombok.Getter;
 
+@Data
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         property = "tipo"
@@ -11,6 +14,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = CargarFiguritaDTO.class, name = "FIGURITA"),
         @JsonSubTypes.Type(value = CargarSeccionDTO.class, name = "SECCION")
 })
-public interface ContenidoDTO {
-    String getTipo();
+public abstract class ContenidoDTO {
+
+    private String nombre;
+
+    public abstract String getTipo();
+
 }

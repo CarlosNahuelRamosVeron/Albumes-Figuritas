@@ -5,9 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CargarSeccionDTO implements ContenidoDTO {
+public class CargarSeccionDTO extends  ContenidoDTO {
     private final String tipo = "SECCION";
-    private String nombre;
     private String descripcion;
     private List<ContenidoDTO> contenidos;
 

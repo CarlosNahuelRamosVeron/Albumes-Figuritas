@@ -13,7 +13,7 @@ public class ImageValidation {
     private static final int MAX_WIDTH = 800; //segun puso el profe como ejemplo en "Reglas de Negocio"
     private static final int MAX_HEIGHT = 600;
 
-    public void validar(MultipartFile archivo) {
+    public static void validar(MultipartFile archivo) {
         if (archivo == null || archivo.isEmpty()) {
             throw new IllegalArgumentException("El archivo de imagen es obligatorio");
         }

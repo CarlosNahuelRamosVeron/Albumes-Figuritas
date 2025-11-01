@@ -1,14 +1,9 @@
 package com.tp.album.service;
 
-import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
-import com.tp.album.model.enumeration.ModoDistribucion;
 import com.tp.album.model.repository.AlbumRepository;
-import com.tp.album.service.strategy.DistributionStrategy;
-import com.tp.album.service.strategy.DistributionStrategyFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +13,9 @@ import java.util.List;
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
-    private final ContenidoService contenidoService;
-    private final DistributionStrategyFactory strategyFactory;
 
-    public AlbumService(AlbumRepository albumRepository,
-                        ContenidoService contenidoService,
-                        DistributionStrategyFactory strategyFactory) {
+    public AlbumService(AlbumRepository albumRepository) {
         this.albumRepository = albumRepository;
-        this.contenidoService = contenidoService;
-        this.strategyFactory = strategyFactory;
     }
 
     public Album crearAlbum(CrearAlbumDTO dto, String creador) {
@@ -49,18 +38,6 @@ public class AlbumService {
     @Transactional
     public void eliminarAlbum(Long id) {
         albumRepository.deleteById(id);
-    }
-
-    public List<Contenido> obtenerContenido(Long albumId) {
-        Album album = this.obtenerAlbumPorId(albumId);
-        return album.getContenidos();
-    }
-
-    @Transactional
-    public List<Contenido> cargarContenido(Long albumId, List<ContenidoDTO> contenidosDTO, ModoDistribucion modo) {
-        Album album = this.obtenerAlbumPorId(albumId);
-        DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
-        return contenidoService.creaContenidos(album, contenidosDTO, strategy, 10);
     }
 
     @Transactional

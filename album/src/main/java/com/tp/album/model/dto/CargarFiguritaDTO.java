@@ -4,9 +4,8 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class CargarFiguritaDTO implements ContenidoDTO {
+public class CargarFiguritaDTO extends ContenidoDTO {
     private final String tipo = "FIGURITA";
-    private String nombre;
     private int numero;
     private MultipartFile archivoImagen;
 

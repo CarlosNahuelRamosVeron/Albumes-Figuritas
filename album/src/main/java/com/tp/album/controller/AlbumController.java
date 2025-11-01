@@ -1,11 +1,9 @@
 package com.tp.album.controller;
 
 import com.tp.album.config.SecurityUser;
-import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
-import com.tp.album.model.enumeration.ModoDistribucion;
 import com.tp.album.service.AlbumService;
 
 import jakarta.validation.Valid;
@@ -62,12 +60,8 @@ public class AlbumController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> eliminarAlbum(@PathVariable Long id) {
-        try {
-            albumService.eliminarAlbum(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        albumService.eliminarAlbum(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
@@ -81,17 +75,4 @@ public class AlbumController {
         }
     }
 
-    @GetMapping("/{id}/contenido")
-    public ResponseEntity<List<Contenido>> obtenerContenido(@PathVariable Long id) {
-        return ResponseEntity.ok(albumService.obtenerContenido(id));
-    }
-
-    @PostMapping("/{id}/contenido")
-    public ResponseEntity<?> cargarContenido(
-            @PathVariable Long id,
-            @RequestParam(defaultValue = "AUTOMATICO") ModoDistribucion modo,
-            @RequestBody List<ContenidoDTO> contenidosDTO) {
-        albumService.cargarContenido(id, contenidosDTO, modo);
-        return ResponseEntity.ok("Figuritas cargadas con modo " + modo);
-    }
 }
