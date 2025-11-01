@@ -2,10 +2,16 @@ package com.tp.album.controller;
 
 import com.tp.album.model.dto.CrearUsuarioDTO;
 import com.tp.album.model.dto.UsuarioResponseDTO;
+import com.tp.album.model.dto.ActualizarUsuarioDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.service.UsuarioService;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -45,15 +51,27 @@ public class UsuarioController {
         return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-        Usuario actualizado = usuarioService.actualizarUsuario(id, usuario);
-        return ResponseEntity.ok(new UsuarioResponseDTO(actualizado));
+    @PutMapping("")
+    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@RequestBody ActualizarUsuarioDTO dto) {
+        try {
+            Usuario actualizado = usuarioService.actualizarUsuario(dto);
+            return ResponseEntity.ok(new UsuarioResponseDTO(actualizado));
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarUsuarioPorId(@PathVariable Long id) {
-        usuarioService.eliminarUsuarioPorId(id);
-        return ResponseEntity.noContent().build();
+        try {
+            usuarioService.eliminarUsuarioPorId(id);
+            return ResponseEntity.noContent().build();
+        } catch (AuthenticationCredentialsNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 }

@@ -47,7 +47,7 @@ public class ContenidoController {
 
     @GetMapping("/{contenidoId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Contenido> obtenerContenido(@RequestParam Long contenidoId) {
+    public ResponseEntity<Contenido> obtenerContenido(@PathVariable Long contenidoId) {
         try {
             Contenido contenido = contenidoService.obtenerContenido(contenidoId);
             return ResponseEntity.ok(contenido);
@@ -59,7 +59,7 @@ public class ContenidoController {
 
     @DeleteMapping("/{contenidoId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminarContenido(@RequestParam Long contenidoId) {
+    public ResponseEntity<Void> eliminarContenido(@PathVariable Long contenidoId) {
         contenidoService.eliminarContenido(contenidoId);
         return ResponseEntity.noContent().build();
     }

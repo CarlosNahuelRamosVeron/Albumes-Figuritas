@@ -19,4 +19,3 @@ public class UsuarioResponseDTO {
         this.role = usuario.getRole() != null ? usuario.getRole().name() : null;
     }
 }
-
