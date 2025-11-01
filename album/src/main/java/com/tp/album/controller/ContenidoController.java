@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/contenidos")
+@RequestMapping("/contenido")
 public class ContenidoController {
 
     private final ContenidoService contenidoService;
@@ -23,11 +23,11 @@ public class ContenidoController {
         this.contenidoService = contenidoService;
     }
 
-    @PostMapping("/albums/{id}")
+    @PostMapping("/album/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Contenido>> cargarContenido(@PathVariable("id") Long albumId,
-                                                           @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
-                                                           @Valid @RequestBody List<ContenidoDTO> contenidosDTO) {
+                                                    @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
+                                                    @Valid @RequestBody List<ContenidoDTO> contenidosDTO) {
         try {
             List<Contenido> creados = contenidoService.cargarContenido(albumId, contenidosDTO, modo);
             return ResponseEntity.status(HttpStatus.CREATED).body(creados);
@@ -36,7 +36,7 @@ public class ContenidoController {
         }
     }
 
-    @GetMapping("/albums/{id}")
+    @GetMapping("/album/{id}")
     public ResponseEntity<List<Contenido>> obtenerContenidosByAlbumId(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(contenidoService.obtenerContenidoByAlbumId(id));
