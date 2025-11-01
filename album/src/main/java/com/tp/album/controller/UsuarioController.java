@@ -1,12 +1,14 @@
 package com.tp.album.controller;
 
 import com.tp.album.model.dto.CrearUsuarioDTO;
+import com.tp.album.model.dto.UsuarioResponseDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.service.UsuarioService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,11 +22,17 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<String> crearUsuario(@RequestBody CrearUsuarioDTO crearUsuarioDTO) {
+    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody CrearUsuarioDTO crearUsuarioDTO) {
         try {
-            return ResponseEntity.ok(usuarioService.crearUsuario(crearUsuarioDTO).toString());   
+            Usuario creado = usuarioService.crearUsuario(crearUsuarioDTO);
+            UsuarioResponseDTO body = new UsuarioResponseDTO(
+                creado.getId(),
+                creado.getUsername(),
+                creado.getRole() != null ? creado.getRole().name() : null
+            );
+            return ResponseEntity.created(URI.create("/usuarios/" + creado.getId())).body(body);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
