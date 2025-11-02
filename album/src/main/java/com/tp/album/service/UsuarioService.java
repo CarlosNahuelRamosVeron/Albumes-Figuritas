@@ -1,11 +1,15 @@
 package com.tp.album.service;
 
 import com.tp.album.config.SecurityUser;
-import com.tp.album.model.dto.CrearUsuarioDTO;
+import com.tp.album.model.dto.UsuarioRequestDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.model.enumeration.UsuarioRole;
 import com.tp.album.model.repository.UsuarioRepository;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,14 +37,14 @@ public class UsuarioService implements UserDetailsService {
         return new SecurityUser(user);
     }
 
-    public Usuario crearUsuario(CrearUsuarioDTO crearUsuarioDTO) throws Exception {
-        Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(crearUsuarioDTO.getUsername());
+    public Usuario crearUsuario(UsuarioRequestDTO dto) throws Exception {
+        Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(dto.getUsername());
         if (usuarioOptional.isEmpty()) {
-            crearUsuarioDTO.setPassword(passwordEncoder.encode(crearUsuarioDTO.getPassword()));
-            UsuarioRole role = UsuarioRole.valueOf(crearUsuarioDTO.getRole());
+            dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+            UsuarioRole role = UsuarioRole.valueOf(dto.getRole());
             Usuario usuario = new Usuario();
-            usuario.setUsername(crearUsuarioDTO.getUsername());
-            usuario.setPassword(crearUsuarioDTO.getPassword());
+            usuario.setUsername(dto.getUsername());
+            usuario.setPassword(dto.getPassword());
             usuario.setRole(role);
             return usuarioRepository.save(usuario);
         } else {
@@ -61,22 +65,40 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-    public Usuario actualizarUsuario(Long id, Usuario datosActualizados) {
-        Usuario existente = obtenerUsuarioPorId(id);
-        existente.setUsername(datosActualizados.getUsername());
-        if (datosActualizados.getRole() != null) {
-            existente.setRole(datosActualizados.getRole());
-        }
-        if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isBlank()) {
-            existente.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
-        }
+    public Usuario actualizarUsuario(Long id, UsuarioRequestDTO dto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Usuario usuario = this.obtenerUsuarioPorId(id);
+        validarPermisoAdminOMismoUsuario(usuario, auth);
 
-        return usuarioRepository.save(existente);
+        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
+            usuario.setUsername(dto.getUsername());
+        }
+        if (dto.getRole() != null && !dto.getRole().isBlank()) {
+            UsuarioRole nuevoRol = UsuarioRole.valueOf(dto.getRole().trim().toUpperCase());
+            usuario.setRole(nuevoRol);
+        }
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+        return usuarioRepository.save(usuario);
     }
 
     public void eliminarUsuarioPorId(Long id) {
-        usuarioRepository.deleteById(id);
+        Usuario usuario = this.obtenerUsuarioPorId(id);
+        validarPermisoAdminOMismoUsuario(usuario, SecurityContextHolder.getContext().getAuthentication());
+        usuarioRepository.delete(usuario);
     }
 
+    private void validarPermisoAdminOMismoUsuario(Usuario usuario, Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("Usuario no autenticado");
+        }
+        String requester = auth.getName();
+        boolean isAdmin = auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        boolean isSelf = requester != null && requester.equals(usuario.getUsername());
+        if (!isSelf && !isAdmin) {
+            throw new AccessDeniedException("No tiene permisos para modificar este usuario");
+        }
+    }
 
 }
