@@ -1,8 +1,8 @@
 package com.tp.album.controller;
 
+
 import com.tp.album.model.dto.CargaContenidoResponseDTO;
 import com.tp.album.model.dto.ContenidoDTO;
-import com.tp.album.model.dto.ContenidoResponseDTO;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.enumeration.ModoDistribucion;
 import com.tp.album.model.mapper.ContenidoMapper;
@@ -17,34 +17,27 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/contenidos")
-public class ContenidoController {
+@RequestMapping("/albums")
+public class AlbumContenidoController {
 
     private final ContenidoService contenidoService;
     private final ContenidoMapper contenidoMapper;
 
-    public ContenidoController(ContenidoService contenidoService, ContenidoMapper contenidoMapper) {
+    public AlbumContenidoController(ContenidoService contenidoService, ContenidoMapper contenidoMapper) {
         this.contenidoService = contenidoService;
         this.contenidoMapper = contenidoMapper;
     }
-
-    @GetMapping("/{contenidoId}")
+    @PostMapping("/{albumId}/contenidos")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ContenidoResponseDTO> obtenerContenido(@PathVariable Long contenidoId) {
+    public ResponseEntity<CargaContenidoResponseDTO> cargarContenido(@PathVariable("albumId") Long albumId, @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
+                                                                     @Valid @RequestBody List<ContenidoDTO> contenidosDTO) {
         try {
-            Contenido contenido = contenidoService.obtenerContenido(contenidoId);
-            ContenidoResponseDTO contenidoDTO = contenidoMapper.toContenidoResponseDTO(contenido);
-            return ResponseEntity.ok(contenidoDTO);
+            List<Contenido> creados = contenidoService.cargarContenido(albumId, contenidosDTO, modo);
+            CargaContenidoResponseDTO response = contenidoMapper.toCargaContenidoResponseDTO(creados);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-    }
-
-    @DeleteMapping("/{contenidoId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> eliminarContenido(@PathVariable Long contenidoId) {
-        contenidoService.eliminarContenido(contenidoId);
-        return ResponseEntity.noContent().build();
     }
 
 }

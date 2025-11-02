@@ -46,7 +46,9 @@ public class ContenidoService {
     public List<Contenido> cargarContenido(Long albumId, List<ContenidoDTO> contenidosDTO, ModoDistribucion modo) {
         Album album = this.albumService.obtenerAlbumPorId(albumId);
         DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
-        return this.creaContenidos(album, contenidosDTO, strategy, 10);
+        List<Contenido> contenidos = this.creaContenidos(album, contenidosDTO, strategy, 10);
+        this.contenidoRepository.saveAll(contenidos);
+        return contenidos;
     }
 
     private List<Contenido> creaContenidos(Album album, List<ContenidoDTO> contenidosDTO, DistributionStrategy strategy, int defaultStock) {
