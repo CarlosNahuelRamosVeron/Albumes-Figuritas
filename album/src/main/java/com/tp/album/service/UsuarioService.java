@@ -1,8 +1,7 @@
 package com.tp.album.service;
 
 import com.tp.album.config.SecurityUser;
-import com.tp.album.model.dto.ActualizarUsuarioDTO;
-import com.tp.album.model.dto.CrearUsuarioDTO;
+import com.tp.album.model.dto.UsuarioRequestDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.model.enumeration.UsuarioRole;
 import com.tp.album.model.repository.UsuarioRepository;
@@ -38,14 +37,14 @@ public class UsuarioService implements UserDetailsService {
         return new SecurityUser(user);
     }
 
-    public Usuario crearUsuario(CrearUsuarioDTO crearUsuarioDTO) throws Exception {
-        Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(crearUsuarioDTO.getUsername());
+    public Usuario crearUsuario(UsuarioRequestDTO dto) throws Exception {
+        Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(dto.getUsername());
         if (usuarioOptional.isEmpty()) {
-            crearUsuarioDTO.setPassword(passwordEncoder.encode(crearUsuarioDTO.getPassword()));
-            UsuarioRole role = UsuarioRole.valueOf(crearUsuarioDTO.getRole());
+            dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+            UsuarioRole role = UsuarioRole.valueOf(dto.getRole());
             Usuario usuario = new Usuario();
-            usuario.setUsername(crearUsuarioDTO.getUsername());
-            usuario.setPassword(crearUsuarioDTO.getPassword());
+            usuario.setUsername(dto.getUsername());
+            usuario.setPassword(dto.getPassword());
             usuario.setRole(role);
             return usuarioRepository.save(usuario);
         } else {
@@ -66,18 +65,20 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-    public Usuario actualizarUsuario(ActualizarUsuarioDTO datosActualizados) {
+    public Usuario actualizarUsuario(Long id, UsuarioRequestDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Usuario usuario = this.obtenerUsuarioPorId(datosActualizados.getId());
+        Usuario usuario = this.obtenerUsuarioPorId(id);
         validarPermisoAdminOMismoUsuario(usuario, auth);
 
-        usuario.setUsername(datosActualizados.getUsername());
-        if (datosActualizados.getRole() != null) {
-            UsuarioRole nuevoRol = UsuarioRole.valueOf(datosActualizados.getRole().trim().toUpperCase());
+        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
+            usuario.setUsername(dto.getUsername());
+        }
+        if (dto.getRole() != null && !dto.getRole().isBlank()) {
+            UsuarioRole nuevoRol = UsuarioRole.valueOf(dto.getRole().trim().toUpperCase());
             usuario.setRole(nuevoRol);
         }
-        if (datosActualizados.getPassword() != null && !datosActualizados.getPassword().isBlank()) {
-            usuario.setPassword(passwordEncoder.encode(datosActualizados.getPassword()));
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
         return usuarioRepository.save(usuario);
     }

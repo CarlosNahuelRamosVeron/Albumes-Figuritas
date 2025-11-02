@@ -1,8 +1,7 @@
 package com.tp.album.controller;
 
-import com.tp.album.model.dto.CrearUsuarioDTO;
+import com.tp.album.model.dto.UsuarioRequestDTO;
 import com.tp.album.model.dto.UsuarioResponseDTO;
-import com.tp.album.model.dto.ActualizarUsuarioDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.service.UsuarioService;
 
@@ -26,7 +25,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody CrearUsuarioDTO crearUsuarioDTO) {
+    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody UsuarioRequestDTO crearUsuarioDTO) {
         try {
             Usuario creado = usuarioService.crearUsuario(crearUsuarioDTO);
             UsuarioResponseDTO body = new UsuarioResponseDTO(creado);
@@ -49,10 +48,10 @@ public class UsuarioController {
         return ResponseEntity.ok(new UsuarioResponseDTO(usuario));
     }
 
-    @PutMapping
-    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@RequestBody ActualizarUsuarioDTO dto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioRequestDTO dto) {
         try {
-            Usuario actualizado = usuarioService.actualizarUsuario(dto);
+            Usuario actualizado = usuarioService.actualizarUsuario(id, dto);
             return ResponseEntity.ok(new UsuarioResponseDTO(actualizado));
         } catch (AuthenticationCredentialsNotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

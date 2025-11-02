@@ -88,10 +88,10 @@
               { "key": "Authorization", "value": "Bearer {{token}}" },
               { "key": "Content-Type", "value": "application/json" }
             ],
-            "url": "{{baseUrl}}/usuarios",
+            "url": "{{baseUrl}}/usuarios/:usuarioId",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": 1,\n  \"username\": \"nuevo-username\",\n  \"password\": \"nuevaPass123\",\n  \"role\": \"USER\"\n}",
+              "raw": "{\n  \"username\": \"nuevo-username\",\n  \"password\": \"nuevaPass123\",\n  \"role\": \"USER\"\n}",
               "options": { "raw": { "language": "json" } }
             }
           }

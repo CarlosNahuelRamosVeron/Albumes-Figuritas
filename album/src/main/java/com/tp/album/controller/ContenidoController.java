@@ -25,7 +25,7 @@ public class ContenidoController {
 
     @PostMapping("/albums/{albumId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Contenido>> cargarContenido(@PathVariable("id") Long albumId,
+    public ResponseEntity<List<Contenido>> cargarContenido(@PathVariable("albumId") Long albumId,
                                                     @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
                                                     @Valid @RequestBody List<ContenidoDTO> contenidosDTO) {
         try {
@@ -37,9 +37,9 @@ public class ContenidoController {
     }
 
     @GetMapping("/albums/{albumId}")
-    public ResponseEntity<List<Contenido>> obtenerContenidosByAlbumId(@PathVariable Long id) {
+    public ResponseEntity<List<Contenido>> obtenerContenidosByAlbumId(@PathVariable("albumId") Long albumId) {
         try {
-            return ResponseEntity.ok(contenidoService.obtenerContenidoByAlbumId(id));
+            return ResponseEntity.ok(contenidoService.obtenerContenidoByAlbumId(albumId));
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
