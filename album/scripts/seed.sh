@@ -1,31 +1,37 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-# Script de seed para datos dummy de la API
-# - Crea usuario ADMIN y USER (si no existen)
-# - Hace login y guarda el token en variable
-# - Crea álbumes de ejemplo
-# - Carga contenidos (patrón composite: secciones con figuritas anidadas y figuritas sueltas)
-# - Publica un álbum
-# - (Opcional) Actualiza datos de un usuario usando PUT /usuarios/{id}
-#
-# Requisitos: bash, curl, y (opcional) jq o python3 para parsear JSON.
+# Seed robusto para poblar la API con usuarios, álbumes y contenidos (composite).
+# Requisitos: bash, curl, y opcionalmente jq (fallback a python3 si no hay jq).
 # Uso:
 #   chmod +x scripts/seed.sh
-#   BASE_URL=http://localhost:8080 ./scripts/seed.sh
-#   UPDATE_USER_EXAMPLE=true ./scripts/seed.sh   # para ejecutar el ejemplo de actualización
+#   ./scripts/seed.sh
+# Variables opcionales:
+#   BASE_URL (default http://localhost:8080)
+#   ADMIN_USER (default admin)
+#   ADMIN_PASS (default admin123)
+#   USER_USER  (default user)
+#   USER_PASS  (default user123)
+#   DEBUG=true para ver los curl ejecutados (sin token real)
 
+set -euo pipefail
+
+# Config
 BASE_URL=${BASE_URL:-"http://localhost:8080"}
 ADMIN_USER=${ADMIN_USER:-admin}
 ADMIN_PASS=${ADMIN_PASS:-admin123}
 USER_USER=${USER_USER:-user}
 USER_PASS=${USER_PASS:-user123}
-UPDATE_USER_EXAMPLE=${UPDATE_USER_EXAMPLE:-false}
+DEBUG=${DEBUG:-false}
+WAIT_TIMEOUT=${WAIT_TIMEOUT:-40}
+WAIT_INTERVAL=${WAIT_INTERVAL:-2}
 
+# Logging
 info() { echo -e "[INFO] $*"; }
 warn() { echo -e "[WARN] $*" >&2; }
 err()  { echo -e "[ERR ] $*"  >&2; }
+# Mensaje informativo pero a stderr, para no contaminar salidas JSON capturadas
+debug_info() { echo -e "[INFO] $*" >&2; }
 
+# Utilidades JSON (jq o python3)
 json_get() {
   local key="$1"
   if command -v jq >/dev/null 2>&1; then
@@ -46,90 +52,140 @@ PY
   fi
 }
 
-json_find_user_id_by_username() {
-  # Lee desde stdin una lista de usuarios [{id,username,role}...] y busca el id por username exacto
-  local username="$1"
-  if command -v jq >/dev/null 2>&1; then
-    jq -r --arg u "$username" '.[] | select(.username == $u) | .id' | head -n1
-  else
-    python3 - "$username" <<'PY'
-import sys, json
-u = sys.argv[1]
-try:
-    data = json.load(sys.stdin)
-    for it in data:
-        if it.get('username') == u:
-            print(it.get('id'))
-            break
-except Exception:
-    pass
-PY
+# Validación simple de formato JWT (tres segmentos base64url separados por puntos)
+validate_jwt_format() {
+  local token="$1"
+  # Remover comillas accidentales
+  token=$(printf %s "$token" | sed -E 's/^"|"$//g')
+  if [[ ! "$token" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
+    local preview
+    preview="$(printf %s "$token" | cut -c1-12) ... $(printf %s "$token" | rev | cut -c1-12 | rev)"
+    err "Token con formato inválido. Preview: $preview"
+    exit 1
   fi
 }
 
-create_user_if_needed() {
-  local username="$1"; local password="$2"; local role="$3"
-  info "Creando usuario ${username} con rol ${role} (si no existe)"
-  set +e
-  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
-    -X POST "${BASE_URL}/usuarios" \
-    -H 'Content-Type: application/json' \
-    -d "{\"username\":\"${username}\",\"password\":\"${password}\",\"role\":\"${role}\"}")
-  set -e
-  if [[ "$HTTP_CODE" == "201" || "$HTTP_CODE" == "200" ]]; then
+# HTTP helpers
+auth_header() {
+  local token="$1"
+  # Sanitizar por si vinieran caracteres no válidos (solo base64url + '.')
+  token=$(printf %s "$token" | tr -d '\r\n' | sed -E 's/[^A-Za-z0-9_.-]//g')
+  printf 'Authorization: Bearer %s' "$token"
+}
+
+http_request() {
+  # Ejecuta curl capturando cuerpo y status code en HTTP_BODY/HTTP_STATUS
+  local method="$1" url="$2" body="${3:-}" token="${4:-}"
+  local args=( -s -X "$method" "$url" )
+  local debug_line="curl -s -X $method '$url'"
+  if [[ -n "$token" ]]; then
+    local auth; auth=$(auth_header "$token")
+    args+=( -H "$auth" )
+    debug_line+=" -H 'Authorization: Bearer TOKEN_REDACTED'"
+  fi
+  # Aceptar JSON siempre
+  args+=( -H 'Accept: application/json' )
+  if [[ -n "$body" ]]; then
+    args+=( -H 'Content-Type: application/json' -d "$body" )
+    debug_line+=" -H 'Content-Type: application/json' -d '...json...'"
+  fi
+  args+=( -w "\n%{http_code}" )
+  [[ "$DEBUG" == "true" ]] && debug_info "$debug_line"
+  local resp
+  resp=$(curl "${args[@]}")
+  HTTP_STATUS="${resp##*$'\n'}"
+  HTTP_BODY="${resp%$'\n'*}"
+}
+
+wait_for_server() {
+  info "Esperando a que el servidor responda en ${BASE_URL} (timeout ${WAIT_TIMEOUT}s)"
+  local start_ts=$(date +%s)
+  while true; do
+    local code
+    code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL" || true)
+    if [[ "$code" != "000" ]]; then
+      info "Servidor respondió (HTTP $code). Continuando"
+      break
+    fi
+    local now=$(date +%s)
+    if (( now - start_ts > WAIT_TIMEOUT )); then
+      err "Timeout esperando al servidor en ${BASE_URL}"
+      exit 1
+    fi
+    sleep "$WAIT_INTERVAL"
+  done
+}
+
+create_user() {
+  local username="$1" password="$2" role="$3"
+  info "Creando usuario ${username} (${role})"
+  local payload
+  payload="{\"username\":\"${username}\",\"password\":\"${password}\",\"role\":\"${role}\"}"
+  http_request POST "${BASE_URL}/usuarios" "$payload"
+  if [[ "$HTTP_STATUS" == "201" || "$HTTP_STATUS" == "200" ]]; then
     info "Usuario ${username} creado"
-  elif [[ "$HTTP_CODE" == "400" || "$HTTP_CODE" == "409" ]]; then
-    warn "Usuario ${username} ya existe o datos inválidos (HTTP ${HTTP_CODE})"
+  elif [[ "$HTTP_STATUS" == "400" || "$HTTP_STATUS" == "409" ]]; then
+    warn "Usuario ${username} ya existe o datos inválidos (HTTP ${HTTP_STATUS})"
   else
-    info "Respuesta al crear usuario ${username}: HTTP ${HTTP_CODE} (continuando)"
+    err "Crear usuario ${username} falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    exit 1
   fi
 }
 
 login_and_get_token() {
-  local username="$1"; local password="$2"
+  local username="$1" password="$2"
   info "Login de ${username}"
-  RESP=$(curl -s -X POST "${BASE_URL}/auth/login" -H 'Content-Type: application/json' \
-    -d "{\"username\":\"${username}\",\"password\":\"${password}\"}")
-  TOKEN=$(echo "$RESP" | json_get token || true)
-  if [[ -z "${TOKEN:-}" || "${TOKEN}" == "null" ]]; then
-    err "No se pudo obtener token para ${username}. Respuesta: $RESP"
+  local payload="{\"username\":\"${username}\",\"password\":\"${password}\"}"
+  http_request POST "${BASE_URL}/auth/login" "$payload"
+  if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" ]]; then
+    err "Login falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
-  echo "$TOKEN"
-}
-
-auth_header() {
-  local token="$1"
-  echo "Authorization: Bearer ${token}"
+  local token
+  token=$(echo "$HTTP_BODY" | json_get token || true)
+  token=$(printf %s "$token" | tr -d '\r\n' | sed 's/[[:space:]]//g')
+  if [[ -z "${token:-}" || "$token" == "null" ]]; then
+    err "No se obtuvo token del login. Cuerpo: ${HTTP_BODY}"
+    exit 1
+  fi
+  validate_jwt_format "$token"
+  echo "$token"
 }
 
 create_album() {
-  local token="$1"; shift
-  local titulo="$1"; local descripcion="$2"; local categoria="$3"
+  local token="$1" titulo="$2" descripcion="$3" categoria="$4"
   info "Creando álbum: ${titulo}"
-  RESP=$(curl -s -X POST "${BASE_URL}/albums" \
-    -H "$(auth_header "$token")" \
-    -H 'Content-Type: application/json' \
-    -d "{\"titulo\":\"${titulo}\",\"descripcion\":\"${descripcion}\",\"categoria\":\"${categoria}\"}")
-  ALBUM_ID=$(echo "$RESP" | json_get id || true)
-  if [[ -z "${ALBUM_ID:-}" || "$ALBUM_ID" == "null" ]]; then
-    err "No se obtuvo id del álbum. Respuesta: $RESP"
+  local payload
+  payload="{\"titulo\":\"${titulo}\",\"descripcion\":\"${descripcion}\",\"categoria\":\"${categoria}\"}"
+  http_request POST "${BASE_URL}/albums" "$payload" "$token"
+  if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "201" && "$HTTP_STATUS" != "200" ]]; then
+    err "Crear álbum falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
-  echo "$ALBUM_ID"
+  local id
+  id=$(echo "$HTTP_BODY" | json_get id || true)
+  if [[ -z "${id:-}" || "$id" == "null" ]]; then
+    err "No se obtuvo id del álbum. Cuerpo: ${HTTP_BODY}"
+    exit 1
+  fi
+  echo "$id"
 }
 
 publish_album() {
-  local token="$1"; local album_id="$2"
+  local token="$1" album_id="$2"
   info "Publicando álbum ${album_id}"
-  curl -s -X POST "${BASE_URL}/albums/${album_id}/publicar" \
-    -H "$(auth_header "$token")" >/dev/null
+  http_request POST "${BASE_URL}/albums/${album_id}/publicar" "" "$token"
+  if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" ]]; then
+    err "Publicar álbum falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    exit 1
+  fi
 }
 
-seed_contenidos_album() {
-  local token="$1"; local album_id="$2"; local modo="${3:-AUTOMATICO}"
+seed_album_contenidos() {
+  local token="$1" album_id="$2" modo="${3:-AUTOMATICO}"
   info "Cargando contenidos en álbum ${album_id} (modo=${modo})"
-  BODY='[
+  local body
+  body='[
     {
       "tipo": "SECCION",
       "nombre": "Sección A",
@@ -149,81 +205,40 @@ seed_contenidos_album() {
     },
     { "tipo": "FIGURITA", "nombre": "Escudo", "numero": 99, "archivoImagen": null }
   ]'
-  curl -s -X POST "${BASE_URL}/contenidos/albums/${album_id}?modo=${modo}" \
-    -H "$(auth_header "$token")" \
-    -H 'Content-Type: application/json' \
-    -d "$BODY" >/dev/null
-}
-
-resolve_user_id_by_username() {
-  local token="$1"; local username="$2"
-  info "Buscando id de usuario por username=${username}"
-  RESP=$(curl -s -X GET "${BASE_URL}/usuarios" -H "$(auth_header "$token")")
-  local uid
-  uid=$(echo "$RESP" | json_find_user_id_by_username "$username" || true)
-  if [[ -z "${uid:-}" || "${uid}" == "null" ]]; then
-    err "No se encontró id para el usuario ${username}. Respuesta: $RESP"
+  http_request POST "${BASE_URL}/contenidos/albums/${album_id}?modo=${modo}" "$body" "$token"
+  if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" && "$HTTP_STATUS" != "201" ]]; then
+    err "Cargar contenidos falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
-  echo "$uid"
-}
-
-update_user_by_id() {
-  local token="$1"; local user_id="$2"; local new_username="$3"; local new_password="$4"; local new_role="$5"
-  info "Actualizando usuario id=${user_id}"
-  local payload
-  payload='{'
-  local first=true
-  if [[ -n "$new_username" ]]; then
-    payload+="\"username\":\"$new_username\""; first=false
-  fi
-  if [[ -n "$new_password" ]]; then
-    [[ "$first" == false ]] && payload+=","; payload+="\"password\":\"$new_password\""; first=false
-  fi
-  if [[ -n "$new_role" ]]; then
-    [[ "$first" == false ]] && payload+=","; payload+="\"role\":\"$new_role\""; first=false
-  fi
-  payload+="}"
-  curl -s -X PUT "${BASE_URL}/usuarios/${user_id}" \
-    -H "$(auth_header "$token")" \
-    -H 'Content-Type: application/json' \
-    -d "$payload" >/dev/null
 }
 
 main() {
   info "Usando BASE_URL=${BASE_URL}"
+  wait_for_server
 
-  # 1) Usuarios
-  create_user_if_needed "$ADMIN_USER" "$ADMIN_PASS" "ADMIN"
-  create_user_if_needed "$USER_USER"  "$USER_PASS"  "USER"
+  # 1) Crear usuarios públicos
+  create_user "$ADMIN_USER" "$ADMIN_PASS" "ADMIN"
+  create_user "$USER_USER"  "$USER_PASS"  "USER"
 
-  # 2) Login como admin
+  # 2) Login admin
   ADMIN_TOKEN=$(login_and_get_token "$ADMIN_USER" "$ADMIN_PASS")
   info "Token ADMIN obtenido (longitud: ${#ADMIN_TOKEN})"
 
-  # 3) (Opcional) Actualizar usuario de ejemplo
-  if [[ "$UPDATE_USER_EXAMPLE" == "true" ]]; then
-    USER_ID=$(resolve_user_id_by_username "$ADMIN_TOKEN" "$USER_USER")
-    update_user_by_id "$ADMIN_TOKEN" "$USER_ID" "" "${USER_PASS}-upd" ""
-    info "Usuario ${USER_USER} actualizado (password)"
-  fi
-
-  # 4) Crear álbumes
+  # 3) Crear álbumes
   ALBUM1_ID=$(create_album "$ADMIN_TOKEN" "Álbum Deportes" "Colección de deportes" "DEPORTES")
-  ALBUM2_ID=$(create_album "$ADMIN_TOKEN" "Álbum Música"   "Colección musical"        "MUSICA")
+  ALBUM2_ID=$(create_album "$ADMIN_TOKEN" "Álbum Música"   "Colección musical"      "MUSICA")
   info "Álbumes creados: ${ALBUM1_ID}, ${ALBUM2_ID}"
 
-  # 5) Cargar contenidos (composite)
-  seed_contenidos_album "$ADMIN_TOKEN" "$ALBUM1_ID" "AUTOMATICO"
-  seed_contenidos_album "$ADMIN_TOKEN" "$ALBUM2_ID" "UNIFORME"
+  # 4) Cargar contenidos composite
+  seed_album_contenidos "$ADMIN_TOKEN" "$ALBUM1_ID" "AUTOMATICO"
+  seed_album_contenidos "$ADMIN_TOKEN" "$ALBUM2_ID" "UNIFORME"
 
-  # 6) Publicar un álbum de ejemplo
+  # 5) Publicar un álbum de ejemplo
   publish_album "$ADMIN_TOKEN" "$ALBUM1_ID"
 
-  info "Seed finalizado. Datos creados:"
-  info "- Usuarios: ${ADMIN_USER} (ADMIN), ${USER_USER} (USER)"
-  info "- Álbumes: ${ALBUM1_ID} y ${ALBUM2_ID} (con contenidos)"
-  info "Podés listar contenidos con: ${BASE_URL}/contenidos/albums/${ALBUM1_ID}"
+  info "Seed finalizado con éxito"
+  info "Usuarios: ${ADMIN_USER} (ADMIN), ${USER_USER} (USER)"
+  info "Álbumes: ${ALBUM1_ID} y ${ALBUM2_ID} (con contenidos)"
 }
 
 main "$@"
