@@ -1,8 +1,11 @@
 package com.tp.album.controller;
 
 import com.tp.album.config.SecurityUser;
+import com.tp.album.model.dto.AlbumResponseDTO;
 import com.tp.album.model.dto.CrearAlbumDTO;
 import com.tp.album.model.entities.Album;
+import com.tp.album.model.mapper.AlbumMapper;
+import com.tp.album.model.mapper.ContenidoMapper;
 import com.tp.album.service.AlbumService;
 
 import jakarta.validation.Valid;
@@ -10,50 +13,58 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/albums")
 public class AlbumController {
 
     private final AlbumService albumService;
+    private final AlbumMapper albumMapper;
 
-    public AlbumController(AlbumService albumService) {
+    public AlbumController(AlbumService albumService, AlbumMapper albumMapper) {
         this.albumService = albumService;
+        this.albumMapper = albumMapper;
     }
 
     @GetMapping
-    public ResponseEntity<List<Album>> obtenerAlbumes() {
-        return ResponseEntity.ok(albumService.obtenerAlbumes());
+    public ResponseEntity<List<AlbumResponseDTO>> obtenerAlbumes() {
+        List<Album> albums = albumService.obtenerAlbumes();
+        List<AlbumResponseDTO> resp = albums.stream()
+                .map(a -> albumMapper.toAlbumResponseDTO(a, false))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(resp);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Album> obtenerAlbumPorId(@PathVariable Long id) {
-        try {
-            Album album = albumService.obtenerAlbumPorId(id);
-            return ResponseEntity.ok(album);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+    @Transactional(readOnly = true)
+    public ResponseEntity<AlbumResponseDTO> obtenerAlbumPorId(@PathVariable Long id) {
+        Album album = albumService.obtenerAlbumPorId(id);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(album, true);
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/{id}/publicar")
-    public ResponseEntity<Album> publicar(@PathVariable Long id) {
+    public ResponseEntity<AlbumResponseDTO> publicar(@PathVariable Long id) {
         Album albumGuardado = albumService.publicarAlbum(id);
-        return ResponseEntity.ok(albumGuardado);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(albumGuardado, false);
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Album> crearAlbum(@Valid @RequestBody CrearAlbumDTO dto) {
+    public ResponseEntity<AlbumResponseDTO> crearAlbum(@Valid @RequestBody CrearAlbumDTO dto) {
         SecurityUser securityUser = (SecurityUser) SecurityContextHolder.getContext()
                                         .getAuthentication()
                                         .getPrincipal();
         Album albumGuardado = albumService.crearAlbum(dto, securityUser.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED).body(albumGuardado);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(albumGuardado, false);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     @DeleteMapping("/{id}")
@@ -65,13 +76,10 @@ public class AlbumController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Album> actualizarAlbum(@PathVariable Long id, @Valid @RequestBody CrearAlbumDTO dto) {
-        try {
-            Album albumActualizado = albumService.actualizarAlbum(id, dto);
-            return ResponseEntity.ok(albumActualizado);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+    public ResponseEntity<AlbumResponseDTO> actualizarAlbum(@PathVariable Long id, @Valid @RequestBody CrearAlbumDTO dto) {
+        Album albumActualizado = albumService.actualizarAlbum(id, dto);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(albumActualizado, false);
+        return ResponseEntity.ok(resp);
     }
 
 }

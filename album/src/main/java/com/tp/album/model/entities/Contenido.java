@@ -23,6 +23,10 @@ public abstract class Contenido {
 
     public abstract Integer contarFiguritas();
     public abstract double getRarezaValue();
+
+    public boolean isRoot() {
+        return this.parent == null;
+    }
 }
 
 

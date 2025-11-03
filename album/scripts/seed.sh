@@ -191,19 +191,19 @@ seed_album_contenidos() {
       "nombre": "Sección A",
       "descripcion": "Sección introductoria",
       "contenidos": [
-        { "tipo": "FIGURITA", "nombre": "Jugador 1", "numero": 1, "archivoImagen": null },
-        { "tipo": "FIGURITA", "nombre": "Jugador 2", "numero": 2, "archivoImagen": null },
+        { "tipo": "FIGURITA", "nombre": "Jugador 1", "numero": 1, "imagenBase64": null },
+        { "tipo": "FIGURITA", "nombre": "Jugador 2", "numero": 2, "imagenBase64": null },
         {
           "tipo": "SECCION",
           "nombre": "Subsección A1",
           "descripcion": "Parte interna",
           "contenidos": [
-            { "tipo": "FIGURITA", "nombre": "DT", "numero": 10, "archivoImagen": null }
+            { "tipo": "FIGURITA", "nombre": "DT", "numero": 10, "imagenBase64": null }
           ]
         }
       ]
     },
-    { "tipo": "FIGURITA", "nombre": "Escudo", "numero": 99, "archivoImagen": null }
+    { "tipo": "FIGURITA", "nombre": "Escudo", "numero": 99, "imagenBase64": null }
   ]'
   http_request POST "${BASE_URL}/contenidos/albums/${album_id}?modo=${modo}" "$body" "$token"
   if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" && "$HTTP_STATUS" != "201" ]]; then

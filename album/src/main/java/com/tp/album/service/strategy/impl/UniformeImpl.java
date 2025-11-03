@@ -19,8 +19,8 @@ public class UniformeImpl implements DistributionStrategy {
     public void asignarRarezaYStock(Figurita figurita, int defaultStockPorFigurita) {
         Rareza r = niveles[random.nextInt(niveles.length)];
         figurita.setRareza(r);
-        int multiplicador = (r == Rareza.COMUN) ? 1 : (r == Rareza.RARA) ? 1 : 1;
-        figurita.setStockTotal(defaultStockPorFigurita / multiplicador);
+        int divisor = r.getValor();
+        figurita.setStockTotal(defaultStockPorFigurita / divisor);
         figurita.setStockDisponible(figurita.getStockTotal());
     }
 }
