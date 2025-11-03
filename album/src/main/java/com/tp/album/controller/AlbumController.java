@@ -44,13 +44,9 @@ public class AlbumController {
     @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<AlbumResponseDTO> obtenerAlbumPorId(@PathVariable Long id) {
-        try {
-            Album album = albumService.obtenerAlbumPorId(id);
-            AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(album, true);
-            return ResponseEntity.ok(resp);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        Album album = albumService.obtenerAlbumPorId(id);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(album, true);
+        return ResponseEntity.ok(resp);
     }
 
     @PostMapping("/{id}/publicar")
@@ -81,13 +77,9 @@ public class AlbumController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AlbumResponseDTO> actualizarAlbum(@PathVariable Long id, @Valid @RequestBody CrearAlbumDTO dto) {
-        try {
-            Album albumActualizado = albumService.actualizarAlbum(id, dto);
-            AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(albumActualizado, false);
-            return ResponseEntity.ok(resp);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        Album albumActualizado = albumService.actualizarAlbum(id, dto);
+        AlbumResponseDTO resp = albumMapper.toAlbumResponseDTO(albumActualizado, false);
+        return ResponseEntity.ok(resp);
     }
 
 }

@@ -1,20 +1,12 @@
 package com.tp.album.controller;
 
-import com.tp.album.model.dto.CargaContenidoResponseDTO;
-import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.dto.ContenidoResponseDTO;
 import com.tp.album.model.entities.Contenido;
-import com.tp.album.model.enumeration.ModoDistribucion;
 import com.tp.album.model.mapper.ContenidoMapper;
 import com.tp.album.service.ContenidoService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/contenidos")
@@ -31,13 +23,9 @@ public class ContenidoController {
     @GetMapping("/{contenidoId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ContenidoResponseDTO> obtenerContenido(@PathVariable Long contenidoId) {
-        try {
-            Contenido contenido = contenidoService.obtenerContenido(contenidoId);
-            ContenidoResponseDTO contenidoDTO = contenidoMapper.toContenidoResponseDTO(contenido);
-            return ResponseEntity.ok(contenidoDTO);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        Contenido contenido = contenidoService.obtenerContenido(contenidoId);
+        ContenidoResponseDTO contenidoDTO = contenidoMapper.toContenidoResponseDTO(contenido);
+        return ResponseEntity.ok(contenidoDTO);
     }
 
     @DeleteMapping("/{contenidoId}")
@@ -46,5 +34,4 @@ public class ContenidoController {
         contenidoService.eliminarContenido(contenidoId);
         return ResponseEntity.noContent().build();
     }
-
 }

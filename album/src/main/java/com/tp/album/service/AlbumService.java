@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AlbumService {
@@ -31,7 +32,7 @@ public class AlbumService {
     }
 
     public Album obtenerAlbumPorId(Long albumId) {
-        return albumRepository.findById(albumId).orElseThrow(() -> new IllegalArgumentException("Album no encontrado"));
+        return albumRepository.findById(albumId).orElseThrow(() -> new NoSuchElementException("Album no encontrado"));
     }
 
     @Transactional
@@ -56,4 +57,5 @@ public class AlbumService {
         album.setCategoria(dto.getCategoria());
         return albumRepository.save(album);
     }
+
 }

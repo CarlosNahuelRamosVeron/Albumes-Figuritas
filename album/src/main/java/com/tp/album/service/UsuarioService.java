@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -31,13 +32,13 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         Usuario user = usuarioRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
         return new SecurityUser(user);
     }
 
-    public Usuario crearUsuario(UsuarioRequestDTO dto) throws Exception {
+    public Usuario crearUsuario(UsuarioRequestDTO dto) {
         Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(dto.getUsername());
         if (usuarioOptional.isEmpty()) {
             dto.setPassword(passwordEncoder.encode(dto.getPassword()));
@@ -48,7 +49,7 @@ public class UsuarioService implements UserDetailsService {
             usuario.setRole(role);
             return usuarioRepository.save(usuario);
         } else {
-            throw new Exception("El nombre de usuario ya existe, intente con otro.");
+            throw new IllegalArgumentException("El nombre de usuario ya existe, intente con otro.");
         }
     }
 
@@ -62,7 +63,7 @@ public class UsuarioService implements UserDetailsService {
 
     public Usuario obtenerUsuarioPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
     }
 
     public Usuario actualizarUsuario(Long id, UsuarioRequestDTO dto) {

@@ -31,13 +31,9 @@ public class AlbumContenidoController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CargaContenidoResponseDTO> cargarContenido(@PathVariable("albumId") Long albumId, @RequestParam(name = "modo", defaultValue = "AUTOMATICO") ModoDistribucion modo,
                                                                      @Valid @RequestBody List<ContenidoDTO> contenidosDTO) {
-        try {
-            List<Contenido> creados = contenidoService.cargarContenido(albumId, contenidosDTO, modo);
-            CargaContenidoResponseDTO response = contenidoMapper.toCargaContenidoResponseDTO(creados);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
+        List<Contenido> creados = contenidoService.cargarContenido(albumId, contenidosDTO, modo);
+        CargaContenidoResponseDTO response = contenidoMapper.toCargaContenidoResponseDTO(creados);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 }

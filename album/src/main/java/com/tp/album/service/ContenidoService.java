@@ -13,6 +13,7 @@ import com.tp.album.service.strategy.DistributionStrategyFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,22 +34,19 @@ public class ContenidoService {
         this.contenidoRepository = contenidoRepository;
     }
 
+    @Transactional(readOnly = true)
     public Contenido obtenerContenido(Long contenidoId) {
-        return this.contenidoRepository.findById(contenidoId).orElseThrow(() -> new IllegalArgumentException("Contenido no encontrado"));
-    }
-
-    public List<Contenido> obtenerContenidoByAlbumId(Long albumId) {
-        Album album = albumService.obtenerAlbumPorId(albumId);
-        return album.getContenidos();
+        return this.contenidoRepository.findById(contenidoId)
+                .orElseThrow(() -> new NoSuchElementException("Contenido no encontrado"));
     }
 
     @Transactional
     public List<Contenido> cargarContenido(Long albumId, List<ContenidoDTO> contenidosDTO, ModoDistribucion modo) {
         Album album = this.albumService.obtenerAlbumPorId(albumId);
         DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
-        List<Contenido> contenidos = this.creaContenidos(album, contenidosDTO, strategy, 10);
-        this.contenidoRepository.saveAll(contenidos);
-        return contenidos;
+        List<Contenido> creados = this.creaContenidos(album, contenidosDTO, strategy, 10);
+        this.contenidoRepository.saveAll(creados);
+        return creados;
     }
 
     private List<Contenido> creaContenidos(Album album, List<ContenidoDTO> contenidosDTO, DistributionStrategy strategy, int defaultStock) {
@@ -57,6 +55,7 @@ public class ContenidoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void eliminarContenido(Long contenidoId) {
         this.contenidoRepository.deleteById(contenidoId);
     }
