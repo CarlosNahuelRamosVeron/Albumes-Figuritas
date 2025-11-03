@@ -1,4 +1,4 @@
-package com.tp.album.service.strategy;
+package com.tp.album.service;
 
 import com.tp.album.model.dto.CargarFiguritaDTO;
 import com.tp.album.model.dto.CargarSeccionDTO;
@@ -7,6 +7,7 @@ import com.tp.album.model.entities.Album;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.entities.Figurita;
 import com.tp.album.model.entities.Seccion;
+import com.tp.album.service.strategy.DistributionStrategy;
 import com.tp.album.service.validation.ImageValidation;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,7 @@ public  class CreadorContenidoFactory {
         Figurita figurita = new Figurita();
         figurita.setNombre(figuritaDTO.getNombre());
         figurita.setNumero(figuritaDTO.getNumero());
-        figurita.setAlbum(album);
+        album.addContenido(figurita);
 
         String b64 = figuritaDTO.getImagenBase64();
         if (b64 != null && !b64.isBlank()) {
@@ -102,7 +103,7 @@ public  class CreadorContenidoFactory {
         CargarSeccionDTO seccionDTO = (CargarSeccionDTO) dto;
         Seccion seccion = new Seccion();
         seccion.setNombre(seccionDTO.getNombre());
-        seccion.setAlbum(album);
+        album.addContenido(seccion);
 
         if (seccionDTO.getContenidos() != null && !seccionDTO.getContenidos().isEmpty()) {
             agregarContenido(strategy, defaultStock, seccionDTO, seccion);

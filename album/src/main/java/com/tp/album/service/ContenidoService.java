@@ -3,7 +3,6 @@ package com.tp.album.service;
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.repository.ContenidoRepository;
-import com.tp.album.service.strategy.CreadorContenidoFactory;
 import org.springframework.stereotype.Service;
 
 import com.tp.album.model.entities.Album;
@@ -18,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContenidoService {
+
+    private final Integer DEFAULT_STOCK_POR_CONTENIDO = 10;
 
     private final CreadorContenidoFactory creadorContenidoFactory;
     private final AlbumService albumService;
@@ -44,7 +45,7 @@ public class ContenidoService {
     public List<Contenido> cargarContenido(Long albumId, List<ContenidoDTO> contenidosDTO, ModoDistribucion modo) {
         Album album = this.albumService.obtenerAlbumPorId(albumId);
         DistributionStrategy strategy = strategyFactory.elegirEstrategiaSegunAlbum(album, modo);
-        List<Contenido> creados = this.creaContenidos(album, contenidosDTO, strategy, 10);
+        List<Contenido> creados = this.creaContenidos(album, contenidosDTO, strategy, DEFAULT_STOCK_POR_CONTENIDO);
         this.contenidoRepository.saveAll(creados);
         return creados;
     }

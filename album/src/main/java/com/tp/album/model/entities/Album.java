@@ -19,10 +19,10 @@ public class Album {
     private String titulo;
     private String descripcion;
     private String categoria;
-    private String creador; //admin --> a cambiar por usuario
+    private String creador;
     @Enumerated(EnumType.STRING)
-    private Dificultad dificultad; //facil, medio, dificil - calculada al publicar
-    private Integer totalFiguritas = 10; //minimo 10
+    private Dificultad dificultad;
+    private transient Integer totalFiguritas;
     private boolean publicado;
     private LocalDateTime fechaCreacion = LocalDateTime.now();
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -31,7 +31,17 @@ public class Album {
     public void addContenido(Contenido contenido) {
         this.contenidos.add(contenido);
         contenido.setAlbum(this);
-        this.totalFiguritas = this.contenidos.stream().map(Contenido::contarFiguritas).reduce(0, Integer::sum);
+    }
+
+    public Integer getTotalFiguritas() {
+        return this.calcularTotalFiguritas();
+    }
+
+    private Integer calcularTotalFiguritas() {
+        return this.contenidos.stream()
+                .filter(Contenido::isRoot)
+                .map(Contenido::contarFiguritas)
+                .reduce(0, Integer::sum);
     }
 
     public Double calcularRarezaPromedio() {
