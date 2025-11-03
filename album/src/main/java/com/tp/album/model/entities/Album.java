@@ -53,4 +53,11 @@ public class Album {
     public void setDificultadByRarezaScore(double rarezaScore) {
         this.dificultad = Dificultad.fromScore(rarezaScore);
     }
+
+    public void publicar() {
+        if (this.getTotalFiguritas() < 10) {
+            throw new IllegalStateException("Un album debe tener al menos 10 figuritas para ser publicado.");
+        }
+        this.publicado = true;
+    }
 }

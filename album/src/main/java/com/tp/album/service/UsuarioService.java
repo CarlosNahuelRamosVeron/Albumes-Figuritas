@@ -67,13 +67,15 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public Usuario actualizarUsuario(Long id, UsuarioRequestDTO dto) {
+        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
+            throw new IllegalArgumentException("No se puede modificar el nombre de usuario");
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Usuario usuario = this.obtenerUsuarioPorId(id);
         validarPermisoAdminOMismoUsuario(usuario, auth);
 
-        if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
-            usuario.setUsername(dto.getUsername());
-        }
+
         if (dto.getRole() != null && !dto.getRole().isBlank()) {
             UsuarioRole nuevoRol = UsuarioRole.valueOf(dto.getRole().trim().toUpperCase());
             usuario.setRole(nuevoRol);

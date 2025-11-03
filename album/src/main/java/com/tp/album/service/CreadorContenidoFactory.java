@@ -48,6 +48,8 @@ public  class CreadorContenidoFactory {
             ImageValidation.validar(bytes);
             String url = guardarImagenLocal(bytes, guessExtensionFromBase64Header(b64));
             figurita.setUrlImagen(url);
+        } else {
+            throw new IllegalArgumentException("Imagen invalido");
         }
 
         strategy.asignarRarezaYStock(figurita, defaultStock);

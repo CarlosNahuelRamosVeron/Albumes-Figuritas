@@ -45,7 +45,7 @@ public class AlbumService {
         Album album = albumRepository.findById(albumId).orElseThrow();
         Double rarezaScore = album.calcularRarezaPromedio();
         album.setDificultadByRarezaScore(rarezaScore);
-        album.setPublicado(true);
+        album.publicar();
         return albumRepository.save(album);
     }
 
