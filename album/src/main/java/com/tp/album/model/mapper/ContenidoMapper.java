@@ -5,6 +5,7 @@ import com.tp.album.model.entities.Contenido;
 import com.tp.album.model.entities.Figurita;
 import com.tp.album.model.entities.Seccion;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class ContenidoMapper {
         dto.setStockTotal(f.getStockTotal());
         dto.setStockDisponible(f.getStockDisponible());
         dto.setParentId(f.getParent() != null ? f.getParent().getId() : null);
+        dto.setUrlImagen(buildPublicUrl(f.getUrlImagen()));
         return dto;
     }
 
@@ -56,6 +58,14 @@ public class ContenidoMapper {
             dto.setContenidos(hijos);
         }
         return dto;
+    }
+
+    private String buildPublicUrl(String path) {
+        if (path == null || path.isBlank()) return null;
+        String normalized = path.startsWith("/") ? path : "/" + path;
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(normalized)
+                .toUriString();
     }
 
 }
