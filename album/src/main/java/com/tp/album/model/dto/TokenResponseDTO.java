@@ -1,5 +1,10 @@
 package com.tp.album.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class TokenResponseDTO {
     private String token;
     private String tokenType = "Bearer";
@@ -8,20 +13,5 @@ public class TokenResponseDTO {
         this.token = token;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getTokenType() {
-        return tokenType;
-    }
-
-    public void setTokenType(String tokenType) {
-        this.tokenType = tokenType;
-    }
 }
 

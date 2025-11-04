@@ -2,7 +2,9 @@ package com.tp.album.model.dto;
 
 import com.tp.album.model.enumeration.Rareza;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class FiguritaResponseDTO extends ContenidoResponseDTO {
     private final String tipo = "FIGURITA";

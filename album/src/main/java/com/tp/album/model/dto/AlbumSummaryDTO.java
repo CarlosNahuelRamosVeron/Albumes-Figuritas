@@ -3,10 +3,13 @@ package com.tp.album.model.dto;
 import com.tp.album.model.entities.Album;
 import com.tp.album.model.enumeration.Dificultad;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+
 @Data
+@NoArgsConstructor
 public class AlbumSummaryDTO {
     private Long id;
     private String titulo;
@@ -17,9 +20,6 @@ public class AlbumSummaryDTO {
     private Integer totalFiguritas;
     private boolean publicado;
     private LocalDateTime fechaCreacion;
-
-    public AlbumSummaryDTO() {
-    }
 
     public AlbumSummaryDTO(Album album) {
         this.id = album.getId();

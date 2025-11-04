@@ -5,7 +5,9 @@ import lombok.Data;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class CargarSeccionDTO extends  ContenidoDTO {
     @Schema(example = "SECCION")
