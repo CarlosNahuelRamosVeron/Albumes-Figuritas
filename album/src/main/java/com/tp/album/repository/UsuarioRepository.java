@@ -1,4 +1,4 @@
-package com.tp.album.model.repository;
+package com.tp.album.repository;
 
 import com.tp.album.model.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

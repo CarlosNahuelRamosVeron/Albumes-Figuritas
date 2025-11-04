@@ -4,7 +4,7 @@ import com.tp.album.config.SecurityUser;
 import com.tp.album.model.dto.UsuarioRequestDTO;
 import com.tp.album.model.entities.Usuario;
 import com.tp.album.model.enumeration.UsuarioRole;
-import com.tp.album.model.repository.UsuarioRepository;
+import com.tp.album.repository.UsuarioRepository;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;

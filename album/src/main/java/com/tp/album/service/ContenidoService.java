@@ -2,7 +2,7 @@ package com.tp.album.service;
 
 import com.tp.album.model.dto.ContenidoDTO;
 import com.tp.album.model.entities.Contenido;
-import com.tp.album.model.repository.ContenidoRepository;
+import com.tp.album.repository.ContenidoRepository;
 import org.springframework.stereotype.Service;
 
 import com.tp.album.model.entities.Album;
