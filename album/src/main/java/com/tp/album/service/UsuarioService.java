@@ -53,7 +53,7 @@ public class UsuarioService implements UserDetailsService {
         }
     }
 
-    public Optional<Usuario> obtenerUsuarioPorUsername(String username) {
+    private Optional<Usuario> obtenerUsuarioPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
 
