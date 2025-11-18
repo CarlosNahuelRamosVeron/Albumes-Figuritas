@@ -41,12 +41,13 @@ public class UsuarioService implements UserDetailsService {
     public Usuario crearUsuario(UsuarioRequestDTO dto) {
         Optional<Usuario> usuarioOptional = obtenerUsuarioPorUsername(dto.getUsername());
         if (usuarioOptional.isEmpty()) {
-            dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-            UsuarioRole role = UsuarioRole.valueOf(dto.getRole());
+            String hashedPassword = passwordEncoder.encode(dto.getPassword());
+
             Usuario usuario = new Usuario();
             usuario.setUsername(dto.getUsername());
-            usuario.setPassword(dto.getPassword());
-            usuario.setRole(role);
+            usuario.setPassword(hashedPassword);
+            System.out.println("Role asignado: " + dto.getRole());
+            usuario.setRole(dto.getRole());
             return usuarioRepository.save(usuario);
         } else {
             throw new IllegalArgumentException("El nombre de usuario ya existe, intente con otro.");
@@ -76,9 +77,9 @@ public class UsuarioService implements UserDetailsService {
         validarPermisoAdminOMismoUsuario(usuario, auth);
 
 
-        if (dto.getRole() != null && !dto.getRole().isBlank()) {
-            UsuarioRole nuevoRol = UsuarioRole.valueOf(dto.getRole().trim().toUpperCase());
-            usuario.setRole(nuevoRol);
+        if (dto.getRole() != null) {
+
+            usuario.setRole(dto.getRole());
         }
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             usuario.setPassword(passwordEncoder.encode(dto.getPassword()));

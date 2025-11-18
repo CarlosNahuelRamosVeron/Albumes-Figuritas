@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Seed robusto para poblar la API con usuarios, álbumes y contenidos (composite).
+# Seed robusto para poblar la API con usuarios, albumes y contenidos (composite).
 # Requisitos: bash, curl, y opcionalmente jq (fallback a python3 si no hay jq).
 # Uso:
 #   chmod +x scripts/seed.sh
@@ -15,7 +15,7 @@
 set -euo pipefail
 
 # Config
-BASE_URL=${BASE_URL:-"http://localhost:8080"}
+BASE_URL=${BASE_URL:-"http://localhost:8081"}
 ADMIN_USER=${ADMIN_USER:-admin}
 ADMIN_PASS=${ADMIN_PASS:-admin123}
 USER_USER=${USER_USER:-user}
@@ -52,7 +52,7 @@ PY
   fi
 }
 
-# Validación simple de formato JWT (tres segmentos base64url separados por puntos)
+# Validacion simple de formato JWT (tres segmentos base64url separados por puntos)
 validate_jwt_format() {
   local token="$1"
   # Remover comillas accidentales
@@ -60,7 +60,7 @@ validate_jwt_format() {
   if [[ ! "$token" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
     local preview
     preview="$(printf %s "$token" | cut -c1-12) ... $(printf %s "$token" | rev | cut -c1-12 | rev)"
-    err "Token con formato inválido. Preview: $preview"
+    err "Token con formato invalido. Preview: $preview"
     exit 1
   fi
 }
@@ -68,7 +68,7 @@ validate_jwt_format() {
 # HTTP helpers
 auth_header() {
   local token="$1"
-  # Sanitizar por si vinieran caracteres no válidos (solo base64url + '.')
+  # Sanitizar por si vinieran caracteres no validos (solo base64url + '.')
   token=$(printf %s "$token" | tr -d '\r\n' | sed -E 's/[^A-Za-z0-9_.-]//g')
   printf 'Authorization: Bearer %s' "$token"
 }
@@ -104,7 +104,7 @@ wait_for_server() {
     local code
     code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL" || true)
     if [[ "$code" != "000" ]]; then
-      info "Servidor respondió (HTTP $code). Continuando"
+      info "Servidor respondio (HTTP $code). Continuando"
       break
     fi
     local now=$(date +%s)
@@ -125,9 +125,9 @@ create_user() {
   if [[ "$HTTP_STATUS" == "201" || "$HTTP_STATUS" == "200" ]]; then
     info "Usuario ${username} creado"
   elif [[ "$HTTP_STATUS" == "400" || "$HTTP_STATUS" == "409" ]]; then
-    warn "Usuario ${username} ya existe o datos inválidos (HTTP ${HTTP_STATUS})"
+    warn "Usuario ${username} ya existe o datos invalidos (HTTP ${HTTP_STATUS})"
   else
-    err "Crear usuario ${username} falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    err "Crear usuario ${username} fallo (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
 }
@@ -138,7 +138,7 @@ login_and_get_token() {
   local payload="{\"username\":\"${username}\",\"password\":\"${password}\"}"
   http_request POST "${BASE_URL}/auth/login" "$payload"
   if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" ]]; then
-    err "Login falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    err "Login fallo (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
   local token
@@ -154,18 +154,18 @@ login_and_get_token() {
 
 create_album() {
   local token="$1" titulo="$2" descripcion="$3" categoria="$4"
-  info "Creando álbum: ${titulo}"
+  info "Creando album: ${titulo}"
   local payload
   payload="{\"titulo\":\"${titulo}\",\"descripcion\":\"${descripcion}\",\"categoria\":\"${categoria}\"}"
   http_request POST "${BASE_URL}/albums" "$payload" "$token"
   if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "201" && "$HTTP_STATUS" != "200" ]]; then
-    err "Crear álbum falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    err "Crear album fallo (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
   local id
   id=$(echo "$HTTP_BODY" | json_get id || true)
   if [[ -z "${id:-}" || "$id" == "null" ]]; then
-    err "No se obtuvo id del álbum. Cuerpo: ${HTTP_BODY}"
+    err "No se obtuvo id del album. Cuerpo: ${HTTP_BODY}"
     exit 1
   fi
   echo "$id"
@@ -173,29 +173,29 @@ create_album() {
 
 publish_album() {
   local token="$1" album_id="$2"
-  info "Publicando álbum ${album_id}"
+  info "Publicando album ${album_id}"
   http_request POST "${BASE_URL}/albums/${album_id}/publicar" "" "$token"
   if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" ]]; then
-    err "Publicar álbum falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    err "Publicar album fallo (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
 }
 
 seed_album_contenidos() {
   local token="$1" album_id="$2" modo="${3:-AUTOMATICO}"
-  info "Cargando contenidos en álbum ${album_id} (modo=${modo})"
+  info "Cargando contenidos en album ${album_id} (modo=${modo})"
   local body
   body='[
     {
       "tipo": "SECCION",
-      "nombre": "Sección A",
-      "descripcion": "Sección introductoria",
+      "nombre": "Seccion A",
+      "descripcion": "Seccion introductoria",
       "contenidos": [
         { "tipo": "FIGURITA", "nombre": "Jugador 1", "numero": 1, "imagenBase64": null },
         { "tipo": "FIGURITA", "nombre": "Jugador 2", "numero": 2, "imagenBase64": null },
         {
           "tipo": "SECCION",
-          "nombre": "Subsección A1",
+          "nombre": "Subseccion A1",
           "descripcion": "Parte interna",
           "contenidos": [
             { "tipo": "FIGURITA", "nombre": "DT", "numero": 10, "imagenBase64": null }
@@ -207,7 +207,7 @@ seed_album_contenidos() {
   ]'
   http_request POST "${BASE_URL}/contenidos/albums/${album_id}?modo=${modo}" "$body" "$token"
   if [[ "$HTTP_STATUS" != 2* && "$HTTP_STATUS" != "200" && "$HTTP_STATUS" != "201" ]]; then
-    err "Cargar contenidos falló (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
+    err "Cargar contenidos fallo (HTTP ${HTTP_STATUS}). Respuesta: ${HTTP_BODY}"
     exit 1
   fi
 }
@@ -216,29 +216,41 @@ main() {
   info "Usando BASE_URL=${BASE_URL}"
   wait_for_server
 
-  # 1) Crear usuarios públicos
+  # 1) Crear usuarios publicos
   create_user "$ADMIN_USER" "$ADMIN_PASS" "ADMIN"
-  create_user "$USER_USER"  "$USER_PASS"  "USER"
+  create_user "$USER_USER"  "$USER_PASS"  "USUARIO"
 
   # 2) Login admin
-  ADMIN_TOKEN=$(login_and_get_token "$ADMIN_USER" "$ADMIN_PASS")
+  info "Haciendo login de admin..."
+  ADMIN_TOKEN=$(curl -s -X POST "${BASE_URL}/auth/login" \
+    -H "Content-Type: application/json" \
+    -d "{\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\"}" | jq -r '.token')
+
+  # Verificamos que haya token
+  if [[ -z "$ADMIN_TOKEN" || "$ADMIN_TOKEN" == "null" ]]; then
+    err "No se obtuvo token del login de admin. Respuesta del servidor:"
+    curl -s "${BASE_URL}/auth/login" -H "Content-Type: application/json" \
+      -d "{\"username\":\"$ADMIN_USER\",\"password\":\"$ADMIN_PASS\"}"
+    exit 1
+  fi
+
   info "Token ADMIN obtenido (longitud: ${#ADMIN_TOKEN})"
 
-  # 3) Crear álbumes
-  ALBUM1_ID=$(create_album "$ADMIN_TOKEN" "Álbum Deportes" "Colección de deportes" "DEPORTES")
-  ALBUM2_ID=$(create_album "$ADMIN_TOKEN" "Álbum Música"   "Colección musical"      "MUSICA")
-  info "Álbumes creados: ${ALBUM1_ID}, ${ALBUM2_ID}"
+  # 3) Crear albumes
+  ALBUM1_ID=$(create_album "$ADMIN_TOKEN" "Album Deportes" "Coleccion de deportes" "DEPORTES")
+  ALBUM2_ID=$(create_album "$ADMIN_TOKEN" "Album Musica"   "Coleccion musical"      "MUSICA")
+  info "Albumes creados: ${ALBUM1_ID}, ${ALBUM2_ID}"
 
   # 4) Cargar contenidos composite
   seed_album_contenidos "$ADMIN_TOKEN" "$ALBUM1_ID" "AUTOMATICO"
   seed_album_contenidos "$ADMIN_TOKEN" "$ALBUM2_ID" "UNIFORME"
 
-  # 5) Publicar un álbum de ejemplo
+  # 5) Publicar un album de ejemplo
   publish_album "$ADMIN_TOKEN" "$ALBUM1_ID"
 
-  info "Seed finalizado con éxito"
+  info "Seed finalizado con exito"
   info "Usuarios: ${ADMIN_USER} (ADMIN), ${USER_USER} (USER)"
-  info "Álbumes: ${ALBUM1_ID} y ${ALBUM2_ID} (con contenidos)"
+  info "Albumes: ${ALBUM1_ID} y ${ALBUM2_ID} (con contenidos)"
 }
 
 main "$@"

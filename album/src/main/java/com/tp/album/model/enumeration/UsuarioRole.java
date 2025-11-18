@@ -2,7 +2,7 @@ package com.tp.album.model.enumeration;
 
 public enum UsuarioRole {
     ADMIN("ADMIN"),
-    USER("USUARIO");
+    USUARIO("USUARIO");
 
     private final String valor;
 
